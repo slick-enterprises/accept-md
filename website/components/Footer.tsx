@@ -5,8 +5,8 @@ const FOOTER_LINKS = [
   { href: "/#features", label: "Features" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/docs", label: "Docs" },
-  { href: "https://github.com/hemanthvalsaraj/accept-md", label: "GitHub", external: true },
-  { href: "https://github.com/hemanthvalsaraj/accept-md/issues", label: "Issues", external: true },
+  { href: "https://github.com/slick-enterprises/accept-md", label: "GitHub", external: true },
+  { href: "https://github.com/slick-enterprises/accept-md/issues", label: "Issues", external: true },
 ];
 
 export function Footer() {

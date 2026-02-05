@@ -1,6 +1,6 @@
 # accept-md-runtime
 
-Runtime for [accept-md](https://github.com/hemanthvalsaraj/accept-md): HTML-to-Markdown conversion and the handler that serves markdown for Next.js pages when clients send `Accept: text/markdown`. Use this in your Next.js API route or Route Handler.
+Runtime for [accept-md](https://github.com/slick-enterprises/accept-md): HTML-to-Markdown conversion and the handler that serves markdown for Next.js pages when clients send `Accept: text/markdown`. Use this in your Next.js API route or Route Handler.
 
 ## Installation
 
@@ -59,4 +59,4 @@ Loads `accept-md.config.js` and returns a `NextMarkdownConfig` object.
 
 ## License
 
-MIT · [Repository](https://github.com/hemanthvalsaraj/accept-md)
+MIT · [Repository](https://github.com/slick-enterprises/accept-md)

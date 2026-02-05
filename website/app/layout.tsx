@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     "content syndication",
     "documentation export",
   ],
-  authors: [{ name: "accept-md", url: "https://github.com/hemanthvalsaraj/accept-md" }],
+  authors: [{ name: "accept-md", url: "https://github.com/slick-enterprises/accept-md" }],
   creator: "accept-md",
   publisher: "accept-md",
   formatDetection: {
@@ -92,9 +92,9 @@ const jsonLd = {
   author: {
     "@type": "Organization",
     name: "accept-md",
-    url: "https://github.com/hemanthvalsaraj/accept-md",
+    url: "https://github.com/slick-enterprises/accept-md",
   },
-  codeRepository: "https://github.com/hemanthvalsaraj/accept-md",
+  codeRepository: "https://github.com/slick-enterprises/accept-md",
   license: "https://opensource.org/licenses/MIT",
   offers: {
     "@type": "Offer",

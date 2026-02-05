@@ -2,7 +2,7 @@
  * Success banner shown after accept-md init completes.
  */
 
-const CONTRIBUTE_URL = 'https://github.com/hemanthvalsaraj/accept-md/blob/main/docs/CONTRIBUTING.md';
+const CONTRIBUTE_URL = 'https://github.com/slick-enterprises/accept-md/blob/main/docs/CONTRIBUTING.md';
 
 export function formatSuccessBanner(messages: string[]): string {
   const lines: string[] = [];

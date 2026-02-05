@@ -112,7 +112,7 @@ module.exports = {
         <p className="text-ink-300">
           For full details, examples, and contributing, see the{" "}
           <a
-            href="https://github.com/hemanthvalsaraj/accept-md#readme"
+            href="https://github.com/slick-enterprises/accept-md#readme"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-brand-400 hover:text-brand-300"

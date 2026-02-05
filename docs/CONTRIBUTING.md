@@ -55,7 +55,7 @@ Publishing uses OpenID Connect so you don’t need long-lived npm tokens.
    - Open the package → **Settings** → **Trusted Publisher**.
    - Choose **GitHub Actions**.
    - Fill in:
-     - **Organization or user:** `hemanthvalsaraj`
+     - **Organization or user:** `slick-enterprises`
      - **Repository:** `accept-md`
      - **Workflow filename:** `publish.yml` (filename only, with extension).
    - Optional: set **Environment name** (e.g. `npm`) and add `environment: npm` to the `publish` job in `publish.yml`.

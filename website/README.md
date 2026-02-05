@@ -1,6 +1,6 @@
 # accept-md website
 
-Marketing and documentation site for [accept-md](https://github.com/hemanthvalsaraj/accept-md), live at **https://accept.md**.
+Marketing and documentation site for [accept-md](https://github.com/slick-enterprises/accept-md), live at **https://accept.md**.
 
 ## Run locally
 

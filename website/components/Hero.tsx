@@ -30,7 +30,7 @@ export function Hero() {
             <ArrowRight className="h-4 w-4" />
           </Link>
           <a
-            href="https://github.com/hemanthvalsaraj/accept-md"
+            href="https://github.com/slick-enterprises/accept-md"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl border border-ink-700 bg-ink-900/50 px-6 py-3.5 font-semibold text-white transition hover:border-ink-600 hover:bg-ink-800/50"

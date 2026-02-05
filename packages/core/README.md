@@ -1,6 +1,6 @@
 # @accept-md/core
 
-Core utilities for the [accept-md](https://github.com/hemanthvalsaraj/accept-md) ecosystem: Next.js route scanning, config types, and project detection. Used by the **accept-md** CLI and tooling.
+Core utilities for the [accept-md](https://github.com/slick-enterprises/accept-md) ecosystem: Next.js route scanning, config types, and project detection. Used by the **accept-md** CLI and tooling.
 
 ## Installation
 
@@ -43,4 +43,4 @@ Scan only App Router or only Pages Router directories.
 
 ## License
 
-MIT · [Repository](https://github.com/hemanthvalsaraj/accept-md)
+MIT · [Repository](https://github.com/slick-enterprises/accept-md)

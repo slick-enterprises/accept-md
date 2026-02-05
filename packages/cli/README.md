@@ -1,6 +1,6 @@
 # accept-md
 
-CLI for [accept-md](https://github.com/hemanthvalsaraj/accept-md): scaffold middleware and a markdown handler in your Next.js app so that requests with `Accept: text/markdown` get a markdown version of the page.
+CLI for [accept-md](https://github.com/slick-enterprises/accept-md): scaffold middleware and a markdown handler in your Next.js app so that requests with `Accept: text/markdown` get a markdown version of the page.
 
 ## Installation
 
@@ -58,4 +58,4 @@ import { runInit, runDoctor, runFixRoutes, detectProject } from 'accept-md';
 
 ## License
 
-MIT · [Repository](https://github.com/hemanthvalsaraj/accept-md)
+MIT · [Repository](https://github.com/slick-enterprises/accept-md)

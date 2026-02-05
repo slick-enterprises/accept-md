@@ -34,7 +34,7 @@ export function Header() {
             </Link>
           ))}
           <a
-            href="https://github.com/hemanthvalsaraj/accept-md"
+            href="https://github.com/slick-enterprises/accept-md"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl border border-ink-700 bg-ink-900/50 px-4 py-2.5 text-sm font-medium text-ink-200 hover:border-ink-600 hover:bg-ink-800/60 hover:text-white transition-colors"
@@ -68,7 +68,7 @@ export function Header() {
               </Link>
             ))}
             <a
-              href="https://github.com/hemanthvalsaraj/accept-md"
+              href="https://github.com/slick-enterprises/accept-md"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-300 hover:bg-ink-800 hover:text-white"

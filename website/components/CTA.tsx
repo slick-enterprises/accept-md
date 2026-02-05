@@ -14,7 +14,7 @@ export function CTA() {
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
-            href="https://github.com/hemanthvalsaraj/accept-md"
+            href="https://github.com/slick-enterprises/accept-md"
             target="_blank"
             rel="noopener noreferrer"
             className="glow-border inline-flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-3.5 font-semibold text-white transition hover:bg-brand-400"
