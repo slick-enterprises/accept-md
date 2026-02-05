@@ -1,6 +1,6 @@
 {
   "name": "accept-md-runtime",
-  "version": "1.0.29",
+  "version": "2.0.0",
   "description": "HTML→Markdown conversion and route handler for accept-md (Next.js)",
   "type": "module",
   "license": "MIT",
@@ -12,11 +12,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hemanthvalsaraj/accept-md.git"
+    "url": "https://github.com/slick-enterprises/accept-md.git"
   },
-  "homepage": "https://github.com/hemanthvalsaraj/accept-md#readme",
+  "homepage": "https://github.com/slick-enterprises/accept-md#readme",
   "bugs": {
-    "url": "https://github.com/hemanthvalsaraj/accept-md/issues"
+    "url": "https://github.com/slick-enterprises/accept-md/issues"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
