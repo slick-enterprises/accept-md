@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0c0c0e;
+  --foreground: #fafafa;
+  --accent: #8b5cf6;
+  --muted: #71717a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Subtle grid background */
+.bg-grid {
+  background-image: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    );
+  background-size: 24px 24px;
+}
+
+/* Section label — small caps, e.g. "Features // Developer first" */
+.section-label {
+  @apply text-section-label font-medium uppercase tracking-widest text-ink-500;
+}
+
+/* Gradient text (accent) */
+.gradient-text {
+  background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 50%, #ddd6fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Code block / window chrome */
+.code-block {
+  @apply rounded-card-lg border border-ink-800 bg-ink-900/90 font-mono text-sm leading-relaxed overflow-hidden;
+}
+
+/* Glow effect for primary CTAs */
+.glow-border {
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.25),
+    0 0 24px -4px rgba(139, 92, 246, 0.2);
+}
+
+.glow-border:hover {
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4),
+    0 0 32px -4px rgba(139, 92, 246, 0.3);
+}

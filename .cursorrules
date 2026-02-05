@@ -1,0 +1,8 @@
+# accept-md — rules for AI and contributors
+
+- **Monorepo**: packages/core, packages/middleware (accept-md-runtime), packages/cli (accept-md). examples/* and website are separate apps.
+- **User-facing code is JS-compatible**: Generated handlers and templates in packages/middleware must be plain JavaScript (no TypeScript types). Examples use route.js / index.js. Init writes .ts only when the user project has tsconfig.json; otherwise .js.
+- **Do not** convert handler templates or example API routes to TypeScript-only. Do not remove support for .js handler files.
+- **Contract changes**: When changing handler or middleware behavior, update both App and Pages examples and the README.
+- **Build & test**: Use `pnpm run build` and `pnpm run test` from repo root. Lint: `pnpm run lint`.
+- See .cursor/rules/ for file-specific rules and docs/CONTRIBUTING.md for full contributing guide.

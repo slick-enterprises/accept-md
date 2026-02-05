@@ -1,0 +1,54 @@
+{
+  "name": "accept-md",
+  "version": "1.0.28",
+  "description": "CLI and init for accept-md: serve Markdown from Next.js via Accept: text/markdown",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hemanthvalsaraj/accept-md.git"
+  },
+  "homepage": "https://github.com/hemanthvalsaraj/accept-md#readme",
+  "bugs": {
+    "url": "https://github.com/hemanthvalsaraj/accept-md/issues"
+  },
+  "keywords": [
+    "next.js",
+    "markdown",
+    "accept-header",
+    "cli",
+    "init"
+  ],
+  "bin": {
+    "accept-md": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": ["dist", "README.md"],
+  "dependencies": {
+    "@accept-md/core": "workspace:*",
+    "accept-md-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

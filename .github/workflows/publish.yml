@@ -1,0 +1,78 @@
+# Publish workspace packages to npm using Trusted Publisher (OIDC).
+# No NPM_TOKEN needed — npm trusts this workflow.
+#
+# How to publish: Bump version in packages/cli, packages/core, packages/middleware (and root),
+# commit, push, then either:
+#   1. Create a GitHub Release: Repo → Releases → Create new release → Choose tag v1.0.11 (create if needed) → Publish
+#   2. Or push a version tag: git tag v1.0.11 && git push origin v1.0.11
+#
+# Add this workflow as Trusted Publisher for each package on npm:
+#   Package → Settings → Trusted Publisher → GitHub Actions
+#   Organization/user: hemanthvalsaraj, Repository: accept-md, Workflow: publish.yml
+
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write   # Required for OIDC with npm
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Optional: add if you set "Environment name" (e.g. npm) in the Trusted Publisher form
+    # environment: npm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        # Version comes from package.json "packageManager" (pnpm@9.0.0)
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm --filter '@accept-md/core' --filter 'accept-md-runtime' --filter './packages/cli' --filter './website' run build
+
+      # Publish in dependency order: core and runtime first, then CLI (depends on both).
+      # Delays between publishes reduce 409 "packument not fully processed" from the registry.
+      - name: Publish to npm
+        run: |
+          pnpm --filter '@accept-md/core' publish --no-git-checks --access public
+          sleep 15
+          pnpm --filter 'accept-md-runtime' publish --no-git-checks --access public
+          sleep 15
+          pnpm --filter './packages/cli' publish --no-git-checks --access public
+        # Authentication: use npm Trusted Publisher (OIDC) for this workflow; no NODE_AUTH_TOKEN needed.

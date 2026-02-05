@@ -1,0 +1,7 @@
+{
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "files.eol": "\n",
+  "eslint.validate": ["javascript", "typescript"],
+  "typescript.preferences.importModuleSpecifierEnding": "js"
+}

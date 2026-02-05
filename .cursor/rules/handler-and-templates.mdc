@@ -1,0 +1,29 @@
+---
+description: Handler and template rules — keep JS-compatible for end users
+globs: "**/api/accept-md/route.{js,ts},**/api/accept-md/index.{js,ts},**/templates.ts,**/init.ts"
+alwaysApply: false
+---
+
+# Handler and template rules
+
+## Templates (`packages/middleware/src/templates.ts`)
+
+- `APP_ROUTE_HANDLER_TEMPLATE` and `PAGES_API_HANDLER_TEMPLATE` must be **plain JavaScript** only: no TypeScript syntax (no `import type`, no `: Type` annotations). JSDoc `@param` comments are allowed so that generated `.ts` files type-check.
+- These strings are written to user projects by the CLI. User projects may be JavaScript-only.
+- Escape backslashes in template literals as needed (e.g. regex `\b` in a string is `\\\\b` so the written file gets `\b`).
+
+## Example handlers (`examples/*/api/accept-md/`)
+
+- Use **`.js`** files: `route.js` (App Router), `index.js` (Pages Router).
+- Content must match the templates (plain JS). Do not replace with `.ts` or add types here; the example is the reference for both TS and JS users.
+
+## CLI init (`packages/cli/src/init.ts`)
+
+- Use `routeExt = detection.hasTypeScript ? 'ts' : 'js'` when writing the handler file. Do not hardcode `.ts` only.
+- Write the **template as-is** (no TypeScript-only additions). Doctor must accept both `route.ts` and `route.js` (and both `index.ts` and `index.js` for Pages).
+
+## Do not
+
+- Add TypeScript-only syntax (e.g. `import type`, `: NextRequest`) to the template strings.
+- Change examples back to `route.ts` / `index.ts` only.
+- Remove the JS path in init or doctor.

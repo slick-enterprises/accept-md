@@ -1,0 +1,28 @@
+---
+description: Package boundaries and conventions (core, middleware, cli)
+globs: "packages/**/*.ts"
+alwaysApply: false
+---
+
+# Package conventions
+
+## Boundaries
+
+- **@accept-md/core**: No dependency on Next.js or accept-md-runtime. Exports: types, `scanProject`, `loadConfig` (config loader re-exported from runtime in docs; core has types).
+- **accept-md-runtime**: Depends only on turndown, linkedom. Exports: `getMarkdownForPath`, `loadConfig`, template constants. Used by user apps and by the CLI (templates).
+- **accept-md** (CLI): Depends on core and runtime. No direct Next.js dependency; uses core for detection and runtime for templates.
+
+## Code style
+
+- ESM only (`"type": "module"`). Use `import`/`export`, `.js` in imports for TypeScript.
+- Prefer minimal config and small dependency sets.
+- Tests: `**/*.test.ts`, Vitest. Run with `pnpm run test` from root (filters to core and runtime).
+
+## When changing behavior
+
+- If you change handler or middleware **contract** (exports, request/response shape), update:
+  - `packages/middleware` (handler, templates)
+  - `packages/cli` (init, doctor if it references paths)
+  - Both `examples/app-router` and `examples/pages-router`
+  - README and `packages/*/README.md` as needed
+- Run `pnpm run build` and `pnpm run test` before committing.

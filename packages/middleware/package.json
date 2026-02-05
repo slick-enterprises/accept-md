@@ -1,0 +1,51 @@
+{
+  "name": "accept-md-runtime",
+  "version": "1.0.28",
+  "description": "HTML→Markdown conversion and route handler for accept-md (Next.js)",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hemanthvalsaraj/accept-md.git"
+  },
+  "homepage": "https://github.com/hemanthvalsaraj/accept-md#readme",
+  "bugs": {
+    "url": "https://github.com/hemanthvalsaraj/accept-md/issues"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": ["dist", "README.md"],
+  "dependencies": {
+    "turndown": "^7.2.0",
+    "linkedom": "^0.18.0"
+  },
+  "peerDependencies": {
+    "next": ">=12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/turndown": "^5.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  }
+}
