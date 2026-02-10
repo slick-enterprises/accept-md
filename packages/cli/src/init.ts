@@ -11,12 +11,38 @@ import {
   MIDDLEWARE_TEMPLATE,
   APP_ROUTE_HANDLER_TEMPLATE,
   PAGES_API_HANDLER_TEMPLATE,
+  getNextConfigRewrite,
 } from 'accept-md-runtime';
 
 const MARKDOWN_MARKER = 'accept-md';
 
+/**
+ * Fetch the latest published version of a package from npm registry.
+ */
+async function fetchLatestVersionFromRegistry(packageName: string): Promise<string | null> {
+  try {
+    const response = await fetch(`https://registry.npmjs.org/${packageName}/latest`, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.version || null;
+  } catch {
+    return null;
+  }
+}
+
 /** Get the current CLI version to use for accept-md-runtime. */
-function getRuntimeVersion(): string {
+async function getRuntimeVersion(): Promise<string> {
+  // Try fetching latest from npm registry first
+  const latestVersion = await fetchLatestVersionFromRegistry('accept-md');
+  if (latestVersion) {
+    return latestVersion; // Return exact version, no ^ prefix
+  }
+
+  // Fallback to local package.json version
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -25,14 +51,224 @@ function getRuntimeVersion(): string {
       const cliPkg = JSON.parse(readFileSync(cliPkgPath, 'utf-8'));
       const version = cliPkg.version;
       if (version && typeof version === 'string') {
-        return `^${version}`;
+        return version; // Return exact version, no ^ prefix
       }
     }
   } catch {
     // Fall through to default
   }
   // Fallback: use current version (update this when publishing)
-  return '^1.0.24';
+  return '2.0.1';
+}
+
+/**
+ * Check if installed accept-md-runtime version matches expected version.
+ */
+function checkRuntimeVersion(
+  projectRoot: string,
+  expectedVersion: string
+): { compatible: boolean; installed?: string; message: string } {
+  const pkgPath = join(projectRoot, 'package.json');
+  if (!existsSync(pkgPath)) {
+    return {
+      compatible: true,
+      message: 'accept-md-runtime not installed yet.',
+    };
+  }
+
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    const installedVersion =
+      pkg.dependencies?.['accept-md-runtime'] || pkg.devDependencies?.['accept-md-runtime'];
+
+    if (!installedVersion) {
+      return {
+        compatible: true,
+        message: 'accept-md-runtime not installed yet.',
+      };
+    }
+
+    // Extract version number from version string (handle ranges like ^2.0.1, ~2.0.1, 2.0.1)
+    const extractVersion = (v: string): string => {
+      // Remove range prefixes
+      return v.replace(/^[\^~>=<]+\s*/, '').trim();
+    };
+
+    const installed = extractVersion(installedVersion);
+    const expected = extractVersion(expectedVersion);
+
+    if (installed === expected) {
+      return {
+        compatible: true,
+        installed,
+        message: `Version match: accept-md-runtime@${installed}`,
+      };
+    }
+
+    // Check if it's a major version mismatch (more serious)
+    const installedMajor = installed.split('.')[0];
+    const expectedMajor = expected.split('.')[0];
+    const isMajorMismatch = installedMajor !== expectedMajor;
+
+    return {
+      compatible: false,
+      installed,
+      message: isMajorMismatch
+        ? `⚠️  Major version mismatch: CLI expects accept-md-runtime@${expected} but found ${installedVersion}. This may cause compatibility issues. Run: npm install accept-md-runtime@${expected}`
+        : `⚠️  Version mismatch: CLI expects accept-md-runtime@${expected} but found ${installedVersion}. Run: npm install accept-md-runtime@${expected}`,
+    };
+  } catch {
+    return {
+      compatible: true,
+      message: 'Could not check version (package.json parse error).',
+    };
+  }
+}
+
+/**
+ * Find next.config file in project root.
+ */
+function findNextConfig(projectRoot: string): string | null {
+  const configPaths = [
+    'next.config.js',
+    'next.config.ts',
+    'next.config.mjs',
+  ];
+  for (const configPath of configPaths) {
+    const fullPath = join(projectRoot, configPath);
+    if (existsSync(fullPath)) {
+      return configPath;
+    }
+  }
+  return null;
+}
+
+/**
+ * Check if next.config already has accept-md rewrite.
+ */
+function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): boolean {
+  try {
+    const fullPath = join(projectRoot, configPath);
+    const content = readFileSync(fullPath, 'utf-8');
+    // Check for accept-md rewrite pattern
+    const hasDestination = /['"]\/api\/accept-md\?path=:path/.test(content);
+    const hasAcceptHeader = /accept.*text\/markdown|text\/markdown.*accept/i.test(content);
+    const hasBeforeFiles = /beforeFiles/i.test(content);
+    return hasDestination && hasAcceptHeader && hasBeforeFiles;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Add accept-md rewrite to next.config file.
+ * Uses string manipulation to safely add the rewrite without executing the config.
+ */
+function addRewriteToNextConfig(projectRoot: string, configPath: string): { success: boolean; message: string } {
+  try {
+    const fullPath = join(projectRoot, configPath);
+    const content = readFileSync(fullPath, 'utf-8');
+    const rewrite = getNextConfigRewrite();
+    
+    // Check if rewrites already exist
+    const hasRewrites = /rewrites\s*[:=]/.test(content);
+    const hasBeforeFiles = /beforeFiles\s*[:=]/.test(content);
+    
+    // Format the rewrite object as a string (JS-compatible)
+    const rewriteStr = `    {
+      source: '/:path*',
+      destination: '/api/accept-md?path=:path*',
+      has: [
+        {
+          type: 'header',
+          key: 'accept',
+          value: '(.*)text/markdown(.*)',
+        },
+      ],
+    }`;
+    
+    if (hasRewrites && hasBeforeFiles) {
+      // Find beforeFiles array and add to it
+      const beforeFilesMatch = content.match(/beforeFiles\s*[:=]\s*\[/);
+      if (beforeFilesMatch) {
+        const insertPos = beforeFilesMatch.index! + beforeFilesMatch[0].length;
+        // Check if array is empty or has items
+        const afterBracket = content.slice(insertPos);
+        const nextBracket = afterBracket.indexOf(']');
+        const arrayContent = afterBracket.slice(0, nextBracket).trim();
+        const needsComma = arrayContent.length > 0 && !arrayContent.endsWith(',');
+        const newContent =
+          content.slice(0, insertPos) +
+          (needsComma ? ',\n' : '') +
+          rewriteStr +
+          '\n' +
+          content.slice(insertPos);
+        writeFileSync(fullPath, newContent);
+        return { success: true, message: `Added accept-md rewrite to ${configPath}.` };
+      }
+    } else if (hasRewrites) {
+      // Has rewrites but no beforeFiles - add beforeFiles
+      const rewritesMatch = content.match(/rewrites\s*[:=]\s*\{/);
+      if (rewritesMatch) {
+        const insertPos = rewritesMatch.index! + rewritesMatch[0].length;
+        const newContent =
+          content.slice(0, insertPos) +
+          '\n    beforeFiles: [\n' +
+          rewriteStr +
+          '\n    ],\n' +
+          content.slice(insertPos);
+        writeFileSync(fullPath, newContent);
+        return { success: true, message: `Added accept-md rewrite to ${configPath}.` };
+      }
+    } else {
+      // No rewrites at all - add rewrites function or object
+      // Check if config exports a function or object
+      const isFunction = /(const|let|var)\s+nextConfig\s*=\s*(async\s+)?\(/.test(content);
+      const configMatch = content.match(/(const|let|var)\s+nextConfig\s*[:=]/);
+      
+      if (configMatch) {
+        const insertPos = configMatch.index! + configMatch[0].length;
+        // Find the closing brace of nextConfig
+        let braceCount = 0;
+        let inString = false;
+        let stringChar = '';
+        let pos = insertPos;
+        while (pos < content.length) {
+          const char = content[pos];
+          if (!inString && (char === '"' || char === "'" || char === '`')) {
+            inString = true;
+            stringChar = char;
+          } else if (inString && char === stringChar && content[pos - 1] !== '\\') {
+            inString = false;
+          } else if (!inString) {
+            if (char === '{') braceCount++;
+            if (char === '}') {
+              braceCount--;
+              if (braceCount === 0) {
+                // Found closing brace
+                const newContent =
+                  content.slice(0, pos) +
+                  '\n  rewrites: async () => {\n    return {\n      beforeFiles: [\n' +
+                  rewriteStr +
+                  '\n      ],\n    };\n  },\n' +
+                  content.slice(pos);
+                writeFileSync(fullPath, newContent);
+                return { success: true, message: `Added accept-md rewrite to ${configPath}.` };
+              }
+            }
+          }
+          pos++;
+        }
+      }
+    }
+    
+    return { success: false, message: `Could not automatically add rewrite to ${configPath}. Please add it manually.` };
+  } catch (err) {
+    return {
+      success: false,
+      message: `Error modifying ${configPath}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    };
+  }
 }
 
 /** When writing .ts files, add type annotations so strict type-check passes. Leaves .js content unchanged. */
@@ -139,6 +375,35 @@ export interface InitOverrides {
   middlewarePath?: string;
 }
 
+/**
+ * Check version compatibility between CLI and installed runtime.
+ * Exported for use in version-check command.
+ */
+export async function runVersionCheck(projectRoot: string): Promise<{ ok: boolean; messages: string[] }> {
+  const messages: string[] = [];
+  
+  // Get CLI version
+  const cliVersion = await getRuntimeVersion();
+  messages.push(`CLI version: ${cliVersion}`);
+  
+  // Check installed runtime version
+  const versionCheck = checkRuntimeVersion(projectRoot, cliVersion);
+  
+  if (versionCheck.installed) {
+    messages.push(`Installed accept-md-runtime: ${versionCheck.installed}`);
+  } else {
+    messages.push('accept-md-runtime: not installed');
+  }
+  
+  if (versionCheck.compatible) {
+    messages.push('✓ Version compatibility: OK');
+    return { ok: true, messages };
+  } else {
+    messages.push(versionCheck.message);
+    return { ok: false, messages };
+  }
+}
+
 export async function runInit(
   projectRoot: string,
   overrides?: InitOverrides
@@ -170,27 +435,109 @@ export async function runInit(
   const { routes } = scanProject(projectRoot, { appDir, pagesDir });
   messages.push(`Found ${routes.length} route(s).`);
 
-  const middlewarePathAbs = join(projectRoot, middlewarePathRel);
-
-  let middlewareContent: string;
-  if (detection.middlewarePath && existsSync(middlewarePathAbs)) {
-    middlewareContent = getMiddlewareWithExisting(middlewarePathRel, projectRoot);
-    if (middlewareContent.includes('middleware.user')) {
-      const userPath = middlewarePathRel.replace(/\.(ts|js)$/, '.user.$1');
-      messages.push(`Existing middleware backed up to ${userPath} – markdown runs first.`);
+  // Prefer rewrites in next.config over middleware
+  const nextConfigPath = findNextConfig(projectRoot);
+  let useRewrites = false;
+  
+  if (nextConfigPath) {
+    if (hasAcceptMdRewriteInConfig(projectRoot, nextConfigPath)) {
+      messages.push(`Accept-md rewrite already exists in ${nextConfigPath}.`);
+      useRewrites = true;
+    } else {
+      const result = addRewriteToNextConfig(projectRoot, nextConfigPath);
+      if (result.success) {
+        messages.push(result.message);
+        useRewrites = true;
+      } else {
+        messages.push(`Could not add rewrite to ${nextConfigPath}: ${result.message}. Falling back to middleware.`);
+      }
     }
   } else {
-    middlewareContent = MIDDLEWARE_TEMPLATE;
-  }
-  const middlewareOutputExt = middlewarePathRel.match(/\.(ts|js)$/)?.[1] ?? 'js';
-  middlewareContent = forTypeScript(
-    middlewareContent,
-    middlewareContent.includes('middleware.user') ? 'wrapper' : 'middleware',
-    middlewareOutputExt
-  );
+    // No next.config found - create one with rewrites
+    const newConfigPath = detection.hasTypeScript ? 'next.config.ts' : 'next.config.js';
+    const configContent = detection.hasTypeScript
+      ? `import type { NextConfig } from 'next';
 
-  writeFileSync(middlewarePathAbs, middlewareContent);
-  messages.push(`Wrote ${middlewarePathRel}.`);
+const nextConfig: NextConfig = {
+  rewrites: async () => {
+    return {
+      beforeFiles: [
+        {
+          source: '/:path*',
+          destination: '/api/accept-md?path=:path*',
+          has: [
+            {
+              type: 'header',
+              key: 'accept',
+              value: '(.*)text/markdown(.*)',
+            },
+          ],
+        },
+      ],
+    };
+  },
+};
+
+export default nextConfig;
+`
+      : `/** @type { import('next').NextConfig } */
+const nextConfig = {
+  rewrites: async () => {
+    return {
+      beforeFiles: [
+        {
+          source: '/:path*',
+          destination: '/api/accept-md?path=:path*',
+          has: [
+            {
+              type: 'header',
+              key: 'accept',
+              value: '(.*)text/markdown(.*)',
+            },
+          ],
+        },
+      ],
+    };
+  },
+};
+
+module.exports = nextConfig;
+`;
+    writeFileSync(join(projectRoot, newConfigPath), configContent);
+    messages.push(`Created ${newConfigPath} with accept-md rewrite.`);
+    useRewrites = true;
+  }
+
+  // Only create middleware if rewrites weren't successfully added
+  if (!useRewrites) {
+    const middlewarePathAbs = join(projectRoot, middlewarePathRel);
+
+    let middlewareContent: string;
+    if (detection.middlewarePath && existsSync(middlewarePathAbs)) {
+      middlewareContent = getMiddlewareWithExisting(middlewarePathRel, projectRoot);
+      if (middlewareContent.includes('middleware.user')) {
+        const userPath = middlewarePathRel.replace(/\.(ts|js)$/, '.user.$1');
+        messages.push(`Existing middleware backed up to ${userPath} – markdown runs first.`);
+      }
+    } else {
+      middlewareContent = MIDDLEWARE_TEMPLATE;
+    }
+    const middlewareOutputExt = middlewarePathRel.match(/\.(ts|js)$/)?.[1] ?? 'js';
+    middlewareContent = forTypeScript(
+      middlewareContent,
+      middlewareContent.includes('middleware.user') ? 'wrapper' : 'middleware',
+      middlewareOutputExt
+    );
+
+    writeFileSync(middlewarePathAbs, middlewareContent);
+    messages.push(`Wrote ${middlewarePathRel}.`);
+  } else if (detection.middlewarePath && existsSync(join(projectRoot, middlewarePathRel))) {
+    // Rewrites are being used, but middleware exists - inform user
+    const middlewareContent = readFileSync(join(projectRoot, middlewarePathRel), 'utf-8');
+    if (middlewareContent.includes(MARKDOWN_MARKER)) {
+      messages.push(`Note: ${middlewarePathRel} exists but rewrites are preferred. You can remove the middleware file if desired.`);
+    }
+  }
 
   const routeExt = detection.hasTypeScript ? 'ts' : 'js';
   if (detection.routerType === 'app') {
@@ -241,9 +588,17 @@ module.exports = {
   if (existsSync(pkgPath)) {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
     let pkgModified = false;
-    const runtimeVersion = getRuntimeVersion();
+    const runtimeVersion = await getRuntimeVersion();
     const hasRuntimeInDeps = pkg.dependencies?.['accept-md-runtime'];
     const hasRuntimeInDevDeps = pkg.devDependencies?.['accept-md-runtime'];
+    
+    // Check version compatibility before installing/updating
+    if (hasRuntimeInDeps || hasRuntimeInDevDeps) {
+      const versionCheck = checkRuntimeVersion(projectRoot, runtimeVersion);
+      if (!versionCheck.compatible) {
+        messages.push(versionCheck.message);
+      }
+    }
     
     if (!hasRuntimeInDeps && !hasRuntimeInDevDeps) {
       pkg.dependencies = pkg.dependencies || {};
@@ -251,9 +606,11 @@ module.exports = {
       pkgModified = true;
       messages.push(`Added accept-md-runtime@${runtimeVersion} to dependencies. Run pnpm install (or npm install).`);
     } else {
-      // Update existing installation to latest version
+      // Update existing installation to exact matching version
       const currentVersion = hasRuntimeInDeps || hasRuntimeInDevDeps;
-      if (currentVersion !== runtimeVersion) {
+      // Extract version number for comparison (handle ranges)
+      const extractVersion = (v: string): string => v.replace(/^[\^~>=<]+\s*/, '').trim();
+      if (extractVersion(currentVersion) !== runtimeVersion) {
         if (hasRuntimeInDeps) {
           pkg.dependencies['accept-md-runtime'] = runtimeVersion;
         } else {

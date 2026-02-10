@@ -12,12 +12,14 @@
 
 ## How it works
 
-1. **Middleware** intercepts requests with `Accept: text/markdown`.
+1. **Rewrites in `next.config`** (preferred) or **middleware** intercept requests with `Accept: text/markdown`.
 2. The request is **rewritten** to an internal handler with the original path.
 3. The handler **fetches the same URL** as HTML (your app renders it once), then converts HTML → Markdown (strip nav/footer, preserve headings, links, images, tables).
 4. The **markdown response** is returned and can be cached like any other response.
 
 No Puppeteer, no custom server, no edits to your page components.
+
+**Note:** Next.js is moving away from middleware (renaming it to "proxy"). This package now prefers using `next.config` rewrites, which are more performant and future-proof. Middleware is still supported for backward compatibility.
 
 ## Installation
 
@@ -29,10 +31,18 @@ From your Next.js project root:
 npx accept-md init
 ```
 
+**Recommended:** To ensure you get the latest version (bypassing npx cache), use:
+
+```bash
+npx --yes accept-md@latest init
+```
+
+The `@latest` flag ensures you get the most recent version even if npx has a cached older version. The `--yes` flag skips the confirmation prompt.
+
 This will:
 
 - Detect App Router vs Pages Router (supports both root and **src/** layout: `app` or `src/app`, `pages` or `src/pages`)
-- Create or update middleware (at `middleware.ts` or `src/middleware.ts` by default) to rewrite `Accept: text/markdown` to the markdown handler
+- Add rewrites to `next.config.js/ts` (preferred) or create/update middleware (at `middleware.ts` or `src/middleware.ts`) to rewrite `Accept: text/markdown` to the markdown handler
 - Add the handler at `app/api/accept-md/route.ts` or `route.js` (or under `src/`; App Router), or `pages/api/accept-md/index.ts` or `index.js` (Pages Router)
 - Create `accept-md.config.js`
 - Add `accept-md-runtime` to your dependencies
@@ -54,7 +64,7 @@ Install the runtime:
 pnpm add accept-md-runtime
 ```
 
-Add middleware that rewrites `Accept: text/markdown` to `/api/accept-md?path=<path>`, and add the API route / Route Handler that calls `getMarkdownForPath` from the package. See the [examples](./examples) for full code.
+Add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md?path=<path>`, and add the API route / Route Handler that calls `getMarkdownForPath` from the package. See the [examples](./examples) for full code.
 
 ## Usage
 
@@ -106,7 +116,9 @@ module.exports = {
 npx accept-md init [path]
 ```
 
-Scans the project, generates middleware and handler, and creates config. Detects **app** / **pages** and **middleware** paths (including `src/app`, `src/pages`, `src/middleware.ts`). If middleware already exists at the target path, it wraps your middleware so markdown runs first.
+**Recommended:** Use `npx --yes accept-md@latest init [path]` to ensure you get the latest version, bypassing any cached older versions.
+
+Scans the project, adds rewrites to `next.config` (preferred) or generates middleware and handler, and creates config. Detects **app** / **pages** and **middleware** paths (including `src/app`, `src/pages`, `src/middleware.ts`). If middleware already exists at the target path, it wraps your middleware so markdown runs first. Prefers `next.config` rewrites over middleware for better compatibility with future Next.js versions.
 
 **Options:**
 
@@ -141,6 +153,38 @@ Ensures `.next/routes-manifest.json` has a `dataRoutes` array. Next.js 15+ serve
 
 Running `fix-routes` after `next build` (or using the `postbuild` script added by `accept-md init`) patches the manifest so `next start` works. You can run it manually or rely on the automatic postbuild hook.
 
+### `accept-md version-check [path]`
+
+Checks version compatibility between the CLI and installed `accept-md-runtime` package. Reports any mismatches and suggests fixes. Useful for troubleshooting version-related issues.
+
+## Version Management
+
+accept-md uses exact version matching between the CLI and `accept-md-runtime` to ensure compatibility. The CLI automatically:
+
+- Fetches the latest version from npm registry
+- Installs/updates `accept-md-runtime` to match the CLI version exactly
+- Warns if versions don't match
+
+**Best practices:**
+
+- Use `npx --yes accept-md@latest init` to get the latest version (recommended)
+- Run `npx accept-md version-check` to verify version compatibility
+- The `doctor` command also reports version compatibility
+
+**Troubleshooting version issues:**
+
+If you see version mismatch warnings:
+
+```bash
+# Check current versions
+npx accept-md version-check
+
+# Update to latest
+npm install accept-md-runtime@latest
+# or
+pnpm add accept-md-runtime@latest
+```
+
 ## Project structure (monorepo)
 
 ```
@@ -163,10 +207,38 @@ accept-md/
 
 The runtime does not pre-generate markdown at build time; it generates on first request and then caches. This keeps the implementation simple and avoids custom build steps.
 
+## Version Management
+
+accept-md uses exact version matching between the CLI and `accept-md-runtime` to ensure compatibility. The CLI automatically:
+
+- Fetches the latest version from npm registry
+- Installs/updates `accept-md-runtime` to match the CLI version exactly
+- Warns if versions don't match
+
+**Best practices:**
+
+- Use `npx --yes accept-md@latest init` to get the latest version (recommended)
+- Run `npx accept-md version-check` to verify version compatibility
+- The `doctor` command also reports version compatibility
+
+**Troubleshooting version issues:**
+
+If you see version mismatch warnings:
+
+```bash
+# Check current versions
+npx accept-md version-check
+
+# Update to latest
+npm install accept-md-runtime@latest
+# or
+pnpm add accept-md-runtime@latest
+```
+
 ## Limitations
 
 - **API routes** are excluded (no markdown representation).
-- **Middleware** runs at the edge; the actual HTML→Markdown conversion runs in the Node.js handler.
+- **Rewrites/Middleware**: Rewrites in `next.config` are preferred; middleware runs at the edge. The actual HTML→Markdown conversion runs in the Node.js handler.
 - **Custom servers**: If you use a custom server, ensure the internal fetch to your own origin works (correct `baseUrl` or host headers).
 - **i18n**: Paths are passed as-is; locale prefixes are included in the path. You can adjust with `transformers` or custom middleware if needed.
 
