@@ -11,7 +11,6 @@ import {
   MIDDLEWARE_TEMPLATE,
   APP_ROUTE_HANDLER_TEMPLATE,
   PAGES_API_HANDLER_TEMPLATE,
-  getNextConfigRewrite,
 } from 'accept-md-runtime';
 
 const MARKDOWN_MARKER = 'accept-md';
@@ -168,7 +167,6 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
   try {
     const fullPath = join(projectRoot, configPath);
     const content = readFileSync(fullPath, 'utf-8');
-    const rewrite = getNextConfigRewrite();
     
     // Check if rewrites already exist
     const hasRewrites = /rewrites\s*[:=]/.test(content);
@@ -222,8 +220,6 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
       }
     } else {
       // No rewrites at all - add rewrites function or object
-      // Check if config exports a function or object
-      const isFunction = /(const|let|var)\s+nextConfig\s*=\s*(async\s+)?\(/.test(content);
       const configMatch = content.match(/(const|let|var)\s+nextConfig\s*[:=]/);
       
       if (configMatch) {
@@ -510,27 +506,27 @@ module.exports = nextConfig;
 
   // Only create middleware if rewrites weren't successfully added
   if (!useRewrites) {
-    const middlewarePathAbs = join(projectRoot, middlewarePathRel);
+  const middlewarePathAbs = join(projectRoot, middlewarePathRel);
 
-    let middlewareContent: string;
-    if (detection.middlewarePath && existsSync(middlewarePathAbs)) {
-      middlewareContent = getMiddlewareWithExisting(middlewarePathRel, projectRoot);
-      if (middlewareContent.includes('middleware.user')) {
-        const userPath = middlewarePathRel.replace(/\.(ts|js)$/, '.user.$1');
-        messages.push(`Existing middleware backed up to ${userPath} – markdown runs first.`);
-      }
-    } else {
-      middlewareContent = MIDDLEWARE_TEMPLATE;
+  let middlewareContent: string;
+  if (detection.middlewarePath && existsSync(middlewarePathAbs)) {
+    middlewareContent = getMiddlewareWithExisting(middlewarePathRel, projectRoot);
+    if (middlewareContent.includes('middleware.user')) {
+      const userPath = middlewarePathRel.replace(/\.(ts|js)$/, '.user.$1');
+      messages.push(`Existing middleware backed up to ${userPath} – markdown runs first.`);
     }
-    const middlewareOutputExt = middlewarePathRel.match(/\.(ts|js)$/)?.[1] ?? 'js';
-    middlewareContent = forTypeScript(
-      middlewareContent,
-      middlewareContent.includes('middleware.user') ? 'wrapper' : 'middleware',
-      middlewareOutputExt
-    );
+  } else {
+    middlewareContent = MIDDLEWARE_TEMPLATE;
+  }
+  const middlewareOutputExt = middlewarePathRel.match(/\.(ts|js)$/)?.[1] ?? 'js';
+  middlewareContent = forTypeScript(
+    middlewareContent,
+    middlewareContent.includes('middleware.user') ? 'wrapper' : 'middleware',
+    middlewareOutputExt
+  );
 
-    writeFileSync(middlewarePathAbs, middlewareContent);
-    messages.push(`Wrote ${middlewarePathRel}.`);
+  writeFileSync(middlewarePathAbs, middlewareContent);
+  messages.push(`Wrote ${middlewarePathRel}.`);
   } else if (detection.middlewarePath && existsSync(join(projectRoot, middlewarePathRel))) {
     // Rewrites are being used, but middleware exists - inform user
     const middlewareContent = readFileSync(join(projectRoot, middlewarePathRel), 'utf-8');
