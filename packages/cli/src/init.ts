@@ -34,7 +34,7 @@ async function fetchLatestVersionFromRegistry(packageName: string): Promise<stri
 }
 
 /** Get the current CLI version to use for accept-md-runtime. */
-async function getRuntimeVersion(): Promise<string> {
+export async function getRuntimeVersion(): Promise<string> {
   // Try fetching latest from npm registry first
   const latestVersion = await fetchLatestVersionFromRegistry('accept-md');
   if (latestVersion) {
@@ -63,7 +63,7 @@ async function getRuntimeVersion(): Promise<string> {
 /**
  * Check if installed accept-md-runtime version matches expected version.
  */
-function checkRuntimeVersion(
+export function checkRuntimeVersion(
   projectRoot: string,
   expectedVersion: string
 ): { compatible: boolean; installed?: string; message: string } {
