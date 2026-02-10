@@ -77,6 +77,8 @@ export interface ProjectDetection {
   nextAppPath?: string;
   /** Whether the project uses TypeScript (tsconfig.json present); used to generate .ts or .js handler */
   hasTypeScript?: boolean;
+  /** Whether next.config has accept-md rewrite configuration (preferred over middleware) */
+  hasRewriteConfig?: boolean;
 }
 
 export interface DoctorReport {

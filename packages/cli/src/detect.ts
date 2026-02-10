@@ -41,6 +41,40 @@ function findNextAppInWorkspace(projectRoot: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Check if next.config has accept-md rewrite configuration.
+ * Uses pattern matching to avoid executing the config file.
+ */
+function hasAcceptMdRewrite(projectRoot: string): boolean {
+  const configPaths = [
+    'next.config.js',
+    'next.config.ts',
+    'next.config.mjs',
+    'src/next.config.js',
+    'src/next.config.ts',
+    'src/next.config.mjs',
+  ];
+  for (const configPath of configPaths) {
+    const fullPath = join(projectRoot, configPath);
+    if (!existsSync(fullPath)) continue;
+    try {
+      const content = readFileSync(fullPath, 'utf-8');
+      // Check for accept-md rewrite pattern:
+      // - destination: '/api/accept-md?path=:path*' or '/api/accept-md?path=:path'
+      // - has header with accept and text/markdown
+      const hasDestination = /['"]\/api\/accept-md\?path=:path/.test(content);
+      const hasAcceptHeader = /accept.*text\/markdown|text\/markdown.*accept/i.test(content);
+      const hasBeforeFiles = /beforeFiles/i.test(content);
+      if (hasDestination && hasAcceptHeader && hasBeforeFiles) {
+        return true;
+      }
+    } catch {
+      // Continue to next config file
+    }
+  }
+  return false;
+}
+
 export function detectProject(projectRoot: string): ProjectDetection {
   const pkgPath = join(projectRoot, 'package.json');
   let nextVersion: string | undefined;
@@ -105,6 +139,7 @@ export function detectProject(projectRoot: string): ProjectDetection {
   else if (hasPagesDir) routerType = 'pages';
 
   const hasTypeScript = existsSync(join(projectRoot, 'tsconfig.json'));
+  const hasRewriteConfig = hasAcceptMdRewrite(projectRoot);
 
   return {
     isNext,
@@ -118,5 +153,6 @@ export function detectProject(projectRoot: string): ProjectDetection {
     configPath,
     nextAppPath,
     hasTypeScript,
+    hasRewriteConfig,
   };
 }
