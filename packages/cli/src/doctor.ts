@@ -6,8 +6,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { detectProject } from './detect.js';
 import { scanProject, loadConfig, type DoctorReport } from '@accept-md/core';
+import { getRuntimeVersion, checkRuntimeVersion } from './init.js';
 
-export function runDoctor(projectRoot: string): DoctorReport {
+export async function runDoctor(projectRoot: string): Promise<DoctorReport> {
   const detected = detectProject(projectRoot);
   const { routes } = scanProject(projectRoot, {
     appDir: detected.appDir ?? undefined,
@@ -26,13 +27,18 @@ export function runDoctor(projectRoot: string): DoctorReport {
     issues.push('No app/ or pages/ directory found.');
   }
 
-  if (detected.middlewarePath) {
+  // Check for rewrites first (preferred method)
+  if (detected.hasRewriteConfig) {
+    suggestions.push('Using next.config rewrites (preferred method).');
+  } else if (detected.middlewarePath) {
     const content = readFileSync(join(projectRoot, detected.middlewarePath), 'utf-8');
     if (!content.includes('accept-md')) {
       suggestions.push('Middleware exists but markdown rewrite not detected. Run `npx accept-md init` to add it.');
+    } else {
+      suggestions.push('Using middleware (consider migrating to next.config rewrites for better compatibility).');
     }
   } else {
-    suggestions.push('No middleware found (middleware.ts, middleware.js, or under src/). Run init to create it.');
+    suggestions.push('No rewrite configuration found. Run `npx accept-md init` to set up rewrites in next.config (preferred) or middleware.');
   }
 
   if (detected.routerType) {
@@ -63,6 +69,20 @@ export function runDoctor(projectRoot: string): DoctorReport {
     issues.push('No page routes detected. Check that you have page.tsx (app) or index/page files (pages).');
   }
 
+  // Check version compatibility
+  try {
+    const cliVersion = await getRuntimeVersion();
+    const versionCheck = checkRuntimeVersion(projectRoot, cliVersion);
+    if (!versionCheck.compatible && versionCheck.installed) {
+      issues.push(versionCheck.message);
+    } else if (versionCheck.installed) {
+      suggestions.push(`Version compatibility: OK (CLI ${cliVersion}, runtime ${versionCheck.installed})`);
+    }
+  } catch {
+    // Version check failed (network issue, etc.) - non-blocking
+    suggestions.push('Could not verify version compatibility (network issue).');
+  }
+
   return {
     detected,
     routes,
@@ -82,7 +102,11 @@ export function formatDoctorReport(report: DoctorReport): string {
   lines.push(`  App dir: ${report.detected.hasAppDir} (${report.detected.appDir ?? 'n/a'})`);
   lines.push(`  Pages dir: ${report.detected.hasPagesDir} (${report.detected.pagesDir ?? 'n/a'})`);
   lines.push(`  Middleware: ${report.detected.middlewarePath ?? 'none'}`);
+  lines.push(`  Rewrites: ${report.detected.hasRewriteConfig ? 'yes (preferred)' : 'no'}`);
   lines.push(`  Config: ${report.detected.configPath ?? 'none'}`);
+  lines.push('');
+  
+  // Version info will be in suggestions or issues
   lines.push('');
   lines.push(`Routes (${report.routes.length}):`);
   for (const r of report.routes.slice(0, 30)) {

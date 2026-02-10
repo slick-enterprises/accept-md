@@ -124,3 +124,21 @@ export default async function handler(req, res) {
   }
 }
 `;
+
+/**
+ * Returns the rewrite configuration object for next.config.js/ts
+ * This is the preferred method over middleware (Next.js is moving away from middleware).
+ */
+export function getNextConfigRewrite() {
+  return {
+    source: '/:path*',
+    destination: '/api/accept-md?path=:path*',
+    has: [
+      {
+        type: 'header',
+        key: 'accept',
+        value: '(.*)text/markdown(.*)',
+      },
+    ],
+  };
+}

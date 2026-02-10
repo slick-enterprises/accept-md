@@ -5,7 +5,7 @@
 
 import { createInterface } from 'node:readline';
 import { resolve } from 'node:path';
-import { runInit, type InitOverrides } from './init.js';
+import { runInit, type InitOverrides, runVersionCheck } from './init.js';
 import { runDoctor, formatDoctorReport } from './doctor.js';
 import { runFixRoutes } from './fix-routes.js';
 import { detectProject } from './detect.js';
@@ -79,7 +79,7 @@ async function main() {
   }
 
   if (command === 'doctor') {
-    const report = runDoctor(getProjectRoot());
+    const report = await runDoctor(getProjectRoot());
     console.log(formatDoctorReport(report));
     if (report.issues.length) process.exit(1);
     return;
@@ -95,6 +95,15 @@ async function main() {
     return;
   }
 
+  if (command === 'version-check') {
+    const result = await runVersionCheck(getProjectRoot());
+    result.messages.forEach((m) => console.log(m));
+    if (!result.ok) {
+      process.exit(1);
+    }
+    return;
+  }
+
   console.log(`
 accept-md
 
@@ -102,6 +111,7 @@ Usage:
   npx accept-md init [path]      Add markdown middleware to a Next.js project
   npx accept-md doctor [path]    Report routes and check setup
   npx accept-md fix-routes [path] Ensure routes-manifest has dataRoutes (Next.js 15)
+  npx accept-md version-check [path] Check version compatibility between CLI and runtime
 
 Init options:
   --app-dir=<path>     App directory (e.g. app or src/app)
