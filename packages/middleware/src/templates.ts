@@ -79,7 +79,24 @@ export default async function handler(req, res) {
   const pathRaw = (pathFromHeader || pathFromQuery) || '/';
   const path = typeof pathRaw === 'string' ? pathRaw : (pathRaw[0] || '/');
   const config = loadConfig(process.cwd());
-  const baseUrl = config.baseUrl || (req.headers.origin || req.headers.referer || '').replace(/\\\\/?$/, '') || ('http://localhost:' + (process.env.PORT || 3000));
+  // Construct baseUrl reliably on Vercel: use host header with protocol, fall back to origin/referer, then VERCEL_URL, then localhost
+  let baseUrl = config.baseUrl;
+  if (!baseUrl) {
+    const host = req.headers.host;
+    if (host) {
+      const protocol = req.headers['x-forwarded-proto'] || (process.env.VERCEL_URL ? 'https' : 'http');
+      baseUrl = protocol + '://' + host;
+    } else {
+      const originOrReferer = (req.headers.origin || req.headers.referer || '').replace(/\\\\/?$/, '');
+      if (originOrReferer) {
+        baseUrl = originOrReferer;
+      } else if (process.env.VERCEL_URL) {
+        baseUrl = process.env.VERCEL_URL.startsWith('http') ? process.env.VERCEL_URL : 'https://' + process.env.VERCEL_URL;
+      } else {
+        baseUrl = 'http://localhost:' + (process.env.PORT || 3000);
+      }
+    }
+  }
   // Convert req.headers to Headers for forwarding (e.g., for Vercel deployment protection)
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {

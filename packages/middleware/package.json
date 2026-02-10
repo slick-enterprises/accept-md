@@ -1,6 +1,6 @@
 {
   "name": "accept-md-runtime",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "HTML→Markdown conversion and route handler for accept-md (Next.js)",
   "type": "module",
   "license": "MIT",
