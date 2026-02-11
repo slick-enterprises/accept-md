@@ -57,7 +57,7 @@ export async function getRuntimeVersion(): Promise<string> {
     // Fall through to default
   }
   // Fallback: use current version (update this when publishing)
-  return '2.0.1';
+  return '3.0.3';
 }
 
 /**
@@ -168,6 +168,11 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
     const fullPath = join(projectRoot, configPath);
     let content = readFileSync(fullPath, 'utf-8');
     
+    // Check if rewrite already exists before proceeding
+    if (hasAcceptMdRewriteInConfig(projectRoot, configPath)) {
+      return { success: true, message: `Accept-md rewrite already exists in ${configPath}.` };
+    }
+    
     // Detect if this is an ES module (.mjs or uses export default)
     const isESModule = configPath.endsWith('.mjs') || /export\s+default/.test(content);
     
@@ -182,9 +187,11 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
     const hasBeforeFiles = /beforeFiles\s*[:=]/.test(content);
     
     // Format the rewrite object as a string (JS-compatible)
+    // Next.js rewrites support path parameter expansion in destination paths (not query strings)
+    // Exclude /api/ and /_next/ paths to avoid conflicts
     const rewriteStr = `    {
-      source: '/:path*',
-      destination: '/api/accept-md?path=:path*',
+      source: '/:path((?!api|_next).)*',
+      destination: '/api/accept-md/:path*',
       has: [
         {
           type: 'header',
@@ -202,8 +209,24 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
         // Check if array is empty or has items
         const afterBracket = content.slice(insertPos);
         const nextBracket = afterBracket.indexOf(']');
-        const arrayContent = afterBracket.slice(0, nextBracket).trim();
-        const needsComma = arrayContent.length > 0 && !arrayContent.endsWith(',');
+        const arrayContent = afterBracket.slice(0, nextBracket);
+        
+        // Check if accept-md rewrite already exists in this array
+        const hasAcceptMdInArray = /\/api\/accept-md\?path=:path/.test(arrayContent);
+        if (hasAcceptMdInArray) {
+          return { success: true, message: `Accept-md rewrite already exists in ${configPath}.` };
+        }
+        
+        // Trim whitespace but check if there's actual content (not just whitespace/comments)
+        const trimmedContent = arrayContent.trim();
+        // Check if array has items by looking for non-whitespace, non-comment content
+        const hasItems = trimmedContent.length > 0 && !/^(\s*\/\/[^\n]*\s*)*$/.test(trimmedContent);
+        // Check if the last non-whitespace character before the closing bracket is a comma
+        // Use regex to find the last non-whitespace character
+        const lastNonWhitespaceMatch = arrayContent.match(/\S(?=\s*$)/);
+        const lastNonWhitespace = lastNonWhitespaceMatch ? lastNonWhitespaceMatch[0] : null;
+        const needsComma = hasItems && lastNonWhitespace !== ',';
+        
         let newContent =
           content.slice(0, insertPos) +
           (needsComma ? ',\n' : '') +
@@ -492,8 +515,8 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         {
-          source: '/:path*',
-          destination: '/api/accept-md?path=:path*',
+          source: '/:path((?!api|_next).)*',
+          destination: '/api/accept-md/:path*',
           has: [
             {
               type: 'header',
@@ -515,8 +538,8 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: '/:path*',
-          destination: '/api/accept-md?path=:path*',
+          source: '/:path((?!api|_next).)*',
+          destination: '/api/accept-md/:path*',
           has: [
             {
               type: 'header',

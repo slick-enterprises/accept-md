@@ -14,6 +14,15 @@ export async function GET(request) {
   if (!path || path.trim() === '') {
     path = pathFromQuery && pathFromQuery.trim() !== '' ? pathFromQuery : null;
   }
+  // If pathname starts with /api/accept-md, extract the original path from it
+  // This handles next.config rewrites that use /api/accept-md/:path* pattern
+  if (!path && pathname.startsWith(HANDLER_PATH + '/')) {
+    path = pathname.slice(HANDLER_PATH.length);
+    // Handle root path case: /api/accept-md/ becomes /
+    if (path === '') {
+      path = '/';
+    }
+  }
   if (!path) {
     path = pathname !== HANDLER_PATH ? pathname : null;
   }
