@@ -57,7 +57,7 @@ export async function getRuntimeVersion(): Promise<string> {
     // Fall through to default
   }
   // Fallback: use current version (update this when publishing)
-  return '3.0.1';
+  return '4.0.0';
 }
 
 /**
