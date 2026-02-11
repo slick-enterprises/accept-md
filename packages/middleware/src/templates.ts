@@ -181,7 +181,7 @@ export default async function handler(req, res) {
 export function getNextConfigRewrite() {
   return {
     source: '/:path*',
-    destination: '/api/accept-md?path=:path*',
+    destination: '/api/accept-md/:path*',
     has: [
       {
         type: 'header',

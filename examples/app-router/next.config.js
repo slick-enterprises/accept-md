@@ -5,7 +5,7 @@ const nextConfig = {
       beforeFiles: [
         {
           source: '/:path*',
-          destination: '/api/accept-md?path=:path*',
+          destination: '/api/accept-md/:path*',
           has: [
             {
               type: 'header',

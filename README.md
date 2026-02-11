@@ -137,7 +137,7 @@ Install the runtime:
 pnpm add accept-md-runtime
 ```
 
-Add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md?path=<path>`, and add the API route / Route Handler that calls `getMarkdownForPath` from the package. See the [examples](./examples) for full code.
+Add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md/:path*` (path parameter), and add the API route / Route Handler that calls `getMarkdownForPath` from the package. See the [examples](./examples) for full code.
 
 ## Usage
 

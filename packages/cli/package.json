@@ -1,6 +1,6 @@
 {
   "name": "accept-md",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "CLI and init for accept-md: serve Markdown from Next.js via Accept: text/markdown",
   "type": "module",
   "license": "MIT",
