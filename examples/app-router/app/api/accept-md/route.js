@@ -43,13 +43,16 @@ export async function GET(request) {
   if (!baseUrl) {
     baseUrl = request.nextUrl.origin || 'http://localhost:' + (process.env.PORT || 3000);
   }
+  // Forward headers but avoid sending markdown Accept header to the upstream page fetch
+  const headers = new Headers(request.headers);
+  headers.delete('accept');
   try {
     const markdown = await getMarkdownForPath({
       pathname: path,
       baseUrl,
       config,
       cache: config.cache !== false ? cache : undefined,
-      headers: request.headers,
+      headers,
     });
     return new NextResponse(markdown, {
       headers: {

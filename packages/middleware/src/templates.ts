@@ -71,13 +71,16 @@ export async function GET(request) {
   if (!baseUrl) {
     baseUrl = request.nextUrl.origin || 'http://localhost:' + (process.env.PORT || 3000);
   }
+  // Forward headers but avoid sending markdown Accept header to the upstream page fetch
+  const headers = new Headers(request.headers);
+  headers.delete('accept');
   try {
     const markdown = await getMarkdownForPath({
       pathname: path,
       baseUrl,
       config,
       cache: config.cache !== false ? cache : undefined,
-      headers: request.headers,
+      headers,
     });
     return new NextResponse(markdown, {
       headers: {
@@ -108,7 +111,13 @@ export default async function handler(req, res) {
   const pathFromHeader = req.headers['x-accept-md-path'];
   const pathFromQuery = Array.isArray(req.query.path) ? req.query.path[0] : req.query.path;
   const pathRaw = (pathFromHeader || pathFromQuery) || '/';
-  let path = typeof pathRaw === 'string' ? pathRaw : (pathRaw[0] || '/');
+  // Handle placeholder values like ":path*" that can appear from Next.js rewrite configs
+  let path;
+  if (typeof pathRaw === 'string') {
+    path = (pathRaw === '' || pathRaw.includes(':path')) ? '/' : pathRaw;
+  } else {
+    path = pathRaw[0] || '/';
+  }
   // Ensure path starts with /
   if (!path.startsWith('/')) {
     path = '/' + path;
@@ -139,9 +148,10 @@ export default async function handler(req, res) {
   // Convert req.headers to Headers for forwarding (e.g., for Vercel deployment protection)
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
-    if (value) {
-      headers.set(key, Array.isArray(value) ? value[0] : value);
-    }
+    if (!value) continue;
+    // Do not forward markdown Accept header to the upstream page fetch
+    if (key.toLowerCase() === 'accept') continue;
+    headers.set(key, Array.isArray(value) ? value[0] : value);
   }
   try {
     const markdown = await getMarkdownForPath({

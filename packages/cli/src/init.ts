@@ -144,8 +144,7 @@ function findNextConfig(projectRoot: string): string | null {
 
 /**
  * Check if next.config already has accept-md rewrite.
- * Matches the actual rewrite format: /api/accept-md/:path*
- * Also supports query string format: /api/accept-md?path=:path* (for backward compatibility)
+ * Matches the rewrite format: /api/accept-md/:path*
  * Detection is flexible - only requires destination and accept header (source pattern can vary)
  */
 function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): boolean {
@@ -153,10 +152,8 @@ function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): bo
     const fullPath = join(projectRoot, configPath);
     const content = readFileSync(fullPath, 'utf-8');
     // Check for accept-md rewrite pattern - match the actual format
-    // Pattern 1: destination: '/api/accept-md/:path*' (path parameter - preferred)
-    // Pattern 2: destination: '/api/accept-md?path=:path*' (query string - legacy)
+    // Pattern: destination: '/api/accept-md/:path*' (path parameter)
     const hasDestinationPathParam = /['"]\/api\/accept-md\/:path\*['"]/.test(content);
-    const hasDestinationQuery = /['"]\/api\/accept-md\?path=:path\*['"]/.test(content);
     // Check for accept header - look for both 'accept' key and 'text/markdown' value
     // They may be on different lines, so check independently
     const hasAcceptKey = /\bkey\s*:\s*['"]accept['"]/i.test(content);
@@ -164,7 +161,7 @@ function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): bo
     const hasAcceptHeader = hasAcceptKey && hasMarkdownValue;
     // If we have the destination and accept header, it's an accept-md rewrite
     // Source pattern can vary (with or without _next exclusion, different regex patterns)
-    return (hasDestinationPathParam || hasDestinationQuery) && hasAcceptHeader;
+    return hasDestinationPathParam && hasAcceptHeader;
   } catch {
     return false;
   }
@@ -195,11 +192,10 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
     }
     
     // Format the rewrite object as a string (JS-compatible)
-    // Use query string format in destination for reliable path parameter expansion
-    // Query string format works more reliably than path parameters for catch-all patterns
+    // Use path parameter format in destination for catch-all patterns
     const rewriteStr = `    {
       source: '/:path*',
-      destination: '/api/accept-md?path=:path*',
+      destination: '/api/accept-md/:path*',
       has: [
         {
           type: 'header',
