@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postbuild": "npx accept-md fix-routes"
   },
   "dependencies": {
     "next": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "accept-md-runtime": "workspace:*"
+    "accept-md-runtime": "3.0.3"
   },
   "devDependencies": {
     "accept-md": "workspace:*",

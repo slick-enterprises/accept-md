@@ -57,7 +57,7 @@ export async function getRuntimeVersion(): Promise<string> {
     // Fall through to default
   }
   // Fallback: use current version (update this when publishing)
-  return '3.0.3';
+  return '3.0.0';
 }
 
 /**
@@ -144,16 +144,27 @@ function findNextConfig(projectRoot: string): string | null {
 
 /**
  * Check if next.config already has accept-md rewrite.
+ * Matches the actual rewrite format: /api/accept-md/:path*
+ * Also supports query string format: /api/accept-md?path=:path* (for backward compatibility)
+ * Detection is flexible - only requires destination and accept header (source pattern can vary)
  */
 function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): boolean {
   try {
     const fullPath = join(projectRoot, configPath);
     const content = readFileSync(fullPath, 'utf-8');
-    // Check for accept-md rewrite pattern
-    const hasDestination = /['"]\/api\/accept-md\?path=:path/.test(content);
-    const hasAcceptHeader = /accept.*text\/markdown|text\/markdown.*accept/i.test(content);
-    const hasBeforeFiles = /beforeFiles/i.test(content);
-    return hasDestination && hasAcceptHeader && hasBeforeFiles;
+    // Check for accept-md rewrite pattern - match the actual format
+    // Pattern 1: destination: '/api/accept-md/:path*' (path parameter - preferred)
+    // Pattern 2: destination: '/api/accept-md?path=:path*' (query string - legacy)
+    const hasDestinationPathParam = /['"]\/api\/accept-md\/:path\*['"]/.test(content);
+    const hasDestinationQuery = /['"]\/api\/accept-md\?path=:path\*['"]/.test(content);
+    // Check for accept header - look for both 'accept' key and 'text/markdown' value
+    // They may be on different lines, so check independently
+    const hasAcceptKey = /\bkey\s*:\s*['"]accept['"]/i.test(content);
+    const hasMarkdownValue = /text\/markdown/i.test(content);
+    const hasAcceptHeader = hasAcceptKey && hasMarkdownValue;
+    // If we have the destination and accept header, it's an accept-md rewrite
+    // Source pattern can vary (with or without _next exclusion, different regex patterns)
+    return (hasDestinationPathParam || hasDestinationQuery) && hasAcceptHeader;
   } catch {
     return false;
   }
@@ -162,13 +173,14 @@ function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): bo
 /**
  * Add accept-md rewrite to next.config file.
  * Uses string manipulation to safely add the rewrite without executing the config.
+ * Idempotent: safe to run multiple times.
  */
 function addRewriteToNextConfig(projectRoot: string, configPath: string): { success: boolean; message: string } {
   try {
     const fullPath = join(projectRoot, configPath);
     let content = readFileSync(fullPath, 'utf-8');
     
-    // Check if rewrite already exists before proceeding
+    // Check if rewrite already exists before proceeding (idempotent check)
     if (hasAcceptMdRewriteInConfig(projectRoot, configPath)) {
       return { success: true, message: `Accept-md rewrite already exists in ${configPath}.` };
     }
@@ -181,10 +193,6 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
       // Replace module.exports with export default
       content = content.replace(/module\.exports\s*=\s*nextConfig;?/, 'export default nextConfig;');
     }
-    
-    // Check if rewrites already exist
-    const hasRewrites = /rewrites\s*[:=]/.test(content);
-    const hasBeforeFiles = /beforeFiles\s*[:=]/.test(content);
     
     // Format the rewrite object as a string (JS-compatible)
     // Next.js rewrites support path parameter expansion in destination paths (not query strings)
@@ -201,38 +209,76 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
       ],
     }`;
     
+    // Check if rewrites already exist
+    const hasRewrites = /rewrites\s*[:=]/.test(content);
+    const hasBeforeFiles = /beforeFiles\s*[:=]/.test(content);
+    
     if (hasRewrites && hasBeforeFiles) {
       // Find beforeFiles array and add to it
-      const beforeFilesMatch = content.match(/beforeFiles\s*[:=]\s*\[/);
+      const beforeFilesRegex = /beforeFiles\s*[:=]\s*\[/;
+      const beforeFilesMatch = content.match(beforeFilesRegex);
       if (beforeFilesMatch) {
         const insertPos = beforeFilesMatch.index! + beforeFilesMatch[0].length;
-        // Check if array is empty or has items
+        // Find the matching closing bracket for this array
         const afterBracket = content.slice(insertPos);
-        const nextBracket = afterBracket.indexOf(']');
-        const arrayContent = afterBracket.slice(0, nextBracket);
+        let bracketCount = 1;
+        let inString = false;
+        let stringChar = '';
+        let arrayEndPos = -1;
         
-        // Check if accept-md rewrite already exists in this array
-        const hasAcceptMdInArray = /\/api\/accept-md\?path=:path/.test(arrayContent);
-        if (hasAcceptMdInArray) {
+        for (let i = 0; i < afterBracket.length; i++) {
+          const char = afterBracket[i];
+          if (!inString && (char === '"' || char === "'" || char === '`')) {
+            inString = true;
+            stringChar = char;
+          } else if (inString && char === stringChar && (i === 0 || afterBracket[i - 1] !== '\\')) {
+            inString = false;
+          } else if (!inString) {
+            if (char === '[') bracketCount++;
+            if (char === ']') {
+              bracketCount--;
+              if (bracketCount === 0) {
+                arrayEndPos = i;
+                break;
+              }
+            }
+          }
+        }
+        
+        if (arrayEndPos === -1) {
+          return { success: false, message: `Could not find closing bracket for beforeFiles array in ${configPath}.` };
+        }
+        
+        const arrayContent = afterBracket.slice(0, arrayEndPos);
+        
+        // Check if accept-md rewrite already exists in this array (more robust check)
+        // Check for both path parameter and query string formats
+        // Only need destination and accept header - source pattern can vary
+        const hasAcceptMdPathParam = /\/api\/accept-md\/:path\*/.test(arrayContent);
+        const hasAcceptMdQuery = /\/api\/accept-md\?path=:path\*/.test(arrayContent);
+        const hasAcceptHeader = /accept.*text\/markdown|text\/markdown.*accept/i.test(arrayContent);
+        if ((hasAcceptMdPathParam || hasAcceptMdQuery) && hasAcceptHeader) {
           return { success: true, message: `Accept-md rewrite already exists in ${configPath}.` };
         }
         
-        // Trim whitespace but check if there's actual content (not just whitespace/comments)
-        const trimmedContent = arrayContent.trim();
-        // Check if array has items by looking for non-whitespace, non-comment content
-        const hasItems = trimmedContent.length > 0 && !/^(\s*\/\/[^\n]*\s*)*$/.test(trimmedContent);
-        // Check if the last non-whitespace character before the closing bracket is a comma
-        // Use regex to find the last non-whitespace character
-        const lastNonWhitespaceMatch = arrayContent.match(/\S(?=\s*$)/);
-        const lastNonWhitespace = lastNonWhitespaceMatch ? lastNonWhitespaceMatch[0] : null;
-        const needsComma = hasItems && lastNonWhitespace !== ',';
+        // Determine if we need a comma before the new entry
+        // Find the last non-whitespace, non-comment character before the closing bracket
+        const trimmedArray = arrayContent.trim();
+        const needsComma = trimmedArray.length > 0 && 
+                          !/^(\s*\/\/[^\n]*\s*)*$/.test(trimmedArray) &&
+                          !trimmedArray.endsWith(',');
         
-        let newContent =
-          content.slice(0, insertPos) +
-          (needsComma ? ',\n' : '') +
-          rewriteStr +
-          '\n' +
-          content.slice(insertPos);
+        // Insert the rewrite before the closing bracket
+        const beforeInsert = content.slice(0, insertPos + arrayEndPos);
+        const afterInsert = content.slice(insertPos + arrayEndPos);
+        
+        let newContent = beforeInsert;
+        if (needsComma) {
+          newContent += ',\n';
+        } else if (trimmedArray.length > 0) {
+          newContent += '\n';
+        }
+        newContent += rewriteStr + '\n' + afterInsert;
         
         // Ensure ES modules use export default
         if (isESModule && /module\.exports\s*=/.test(newContent)) {
@@ -244,9 +290,21 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
       }
     } else if (hasRewrites) {
       // Has rewrites but no beforeFiles - add beforeFiles
-      const rewritesMatch = content.match(/rewrites\s*[:=]\s*\{/);
+      // Find the rewrites object/function
+      const rewritesRegex = /rewrites\s*[:=]\s*(async\s*\(\)\s*=>\s*\{|\(\)\s*=>\s*\{|\{)/;
+      const rewritesMatch = content.match(rewritesRegex);
       if (rewritesMatch) {
-        const insertPos = rewritesMatch.index! + rewritesMatch[0].length;
+        let insertPos = rewritesMatch.index! + rewritesMatch[0].length;
+        
+        // If it's a function, find the return statement and the opening brace of the returned object
+        if (rewritesMatch[0].includes('=>')) {
+          const afterMatch = content.slice(insertPos);
+          const returnMatch = afterMatch.match(/\s*return\s*\{/);
+          if (returnMatch) {
+            insertPos = insertPos + returnMatch.index! + returnMatch[0].length;
+          }
+        }
+        
         let newContent =
           content.slice(0, insertPos) +
           '\n    beforeFiles: [\n' +
@@ -278,14 +336,14 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
           if (!inString && (char === '"' || char === "'" || char === '`')) {
             inString = true;
             stringChar = char;
-          } else if (inString && char === stringChar && content[pos - 1] !== '\\') {
+          } else if (inString && char === stringChar && (pos === 0 || content[pos - 1] !== '\\')) {
             inString = false;
           } else if (!inString) {
             if (char === '{') braceCount++;
             if (char === '}') {
               braceCount--;
               if (braceCount === 0) {
-                // Found closing brace
+                // Found closing brace - insert before it
                 const newContent =
                   content.slice(0, pos) +
                   '\n  rewrites: async () => {\n    return {\n      beforeFiles: [\n' +
