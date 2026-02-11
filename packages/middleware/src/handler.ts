@@ -33,14 +33,60 @@ function shouldExclude(pathname: string, config: NextMarkdownConfig): boolean {
   return false;
 }
 
+/**
+ * Cache entry with expiration and build ID tracking.
+ */
+export interface CacheEntry {
+  markdown: string;
+  expiresAt?: number; // timestamp in milliseconds
+  buildId?: string; // BUILD_ID when cached
+}
+
 export interface GetMarkdownOptions {
   pathname: string;
   baseUrl: string;
   config: NextMarkdownConfig;
-  /** In-memory cache (pathname -> markdown). Caller can pass a Map for caching. */
-  cache?: Map<string, string>;
+  /** In-memory cache (pathname -> CacheEntry or string for backward compatibility). Caller can pass a Map for caching. */
+  cache?: Map<string, CacheEntry | string>;
   /** Optional headers to forward to the internal fetch (e.g., for Vercel deployment protection) */
   headers?: HeadersInit;
+}
+
+/**
+ * Extract revalidation time from Next.js response headers.
+ */
+function extractRevalidationTime(res: Response): number | null {
+  // Check x-next-revalidate header (seconds)
+  const nextRevalidate = res.headers.get('x-next-revalidate');
+  if (nextRevalidate) {
+    const seconds = parseInt(nextRevalidate, 10);
+    if (!isNaN(seconds) && seconds > 0) {
+      return seconds;
+    }
+  }
+
+  // Check Cache-Control header for s-maxage or revalidate
+  const cacheControl = res.headers.get('cache-control');
+  if (cacheControl) {
+    // Match s-maxage=3600 or revalidate=3600
+    const sMaxAgeMatch = cacheControl.match(/s-maxage=(\d+)/i);
+    if (sMaxAgeMatch) {
+      return parseInt(sMaxAgeMatch[1], 10);
+    }
+    const revalidateMatch = cacheControl.match(/revalidate=(\d+)/i);
+    if (revalidateMatch) {
+      return parseInt(revalidateMatch[1], 10);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Calculate byte size of a string (UTF-8 encoding).
+ */
+function getByteSize(str: string): number {
+  return new TextEncoder().encode(str).length;
 }
 
 /**
@@ -53,8 +99,31 @@ export async function getMarkdownForPath(options: GetMarkdownOptions): Promise<s
     throw new Error(`Path excluded from markdown: ${normalizedPath}`);
   }
   const cacheKey = normalizedPath;
+  
+  // Check cache with expiration and build ID validation
   if (config.cache !== false && cache?.has(cacheKey)) {
-    return cache.get(cacheKey)!;
+    const cached = cache.get(cacheKey)!;
+    const currentBuildId = typeof process !== 'undefined' ? process.env.BUILD_ID : undefined;
+    
+    // Backward compatibility: handle both CacheEntry and string (old format)
+    let entry: CacheEntry;
+    if (typeof cached === 'string') {
+      // Old format: just a string
+      return cached;
+    } else {
+      entry = cached as CacheEntry;
+    }
+    
+    // Invalidate if build changed
+    if (entry.buildId && entry.buildId !== currentBuildId) {
+      cache.delete(cacheKey);
+    } else if (entry.expiresAt && Date.now() > entry.expiresAt) {
+      // Invalidate if expired
+      cache.delete(cacheKey);
+    } else {
+      // Cache hit - return cached markdown
+      return entry.markdown;
+    }
   }
 
   // Prefer the public/base URL first; only fall back to VERCEL_URL when needed.
@@ -133,12 +202,31 @@ export async function getMarkdownForPath(options: GetMarkdownOptions): Promise<s
   }
 
   const html = await res.text();
+  
+  // Extract revalidation time from response headers
+  const revalidateSeconds = extractRevalidationTime(res);
+  const expiresAt = revalidateSeconds ? Date.now() + revalidateSeconds * 1000 : undefined;
+  const buildId = typeof process !== 'undefined' ? process.env.BUILD_ID : undefined;
+  
+  // Calculate sizes for debug mode
+  const htmlSize = getByteSize(html);
+  
   const md = htmlToMarkdown(html, {
     cleanSelectors: config.cleanSelectors,
     transformers: config.transformers,
+    debug: config.debug,
+    htmlSize: config.debug ? htmlSize : undefined,
   });
+  
+  // Store in cache with expiration and build ID
   if (config.cache !== false && cache) {
-    cache.set(cacheKey, md);
+    const entry: CacheEntry = {
+      markdown: md,
+      buildId,
+      expiresAt,
+    };
+    cache.set(cacheKey, entry);
   }
+  
   return md;
 }

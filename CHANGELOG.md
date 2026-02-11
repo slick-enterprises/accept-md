@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-01-XX
+
+### Added
+
+- **JSON-LD Structured Data Extraction**: JSON-LD scripts (`<script type="application/ld+json">`) are now automatically extracted and included as formatted JSON code blocks at the end of markdown output. This preserves structured data for LLMs and search engines.
+- **Meta Tags to YAML Frontmatter**: HTML meta tags are now automatically extracted and included as YAML frontmatter at the top of markdown output. Supports:
+  - Basic meta tags: `title`, `description`, `keywords`, `author`, `canonical`, `robots`
+  - OpenGraph: `og:title`, `og:description`, `og:type`, `og:url`, `og:image`, `og:site_name`, `og:locale`
+  - Article: `article:author`, `article:published_time`, `article:modified_time`, `article:section`, `article:tag`
+  - Twitter: `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:creator`, `twitter:site`
+- **Extended Cache with Build/ISR Detection**: Cache now intelligently invalidates based on:
+  - **Build detection**: Automatically invalidates when `BUILD_ID` environment variable changes (new build detected)
+  - **ISR revalidation**: Respects `x-next-revalidate` header from Next.js responses and expires entries when revalidation time is reached
+  - Cache entries now include expiration timestamps and build IDs
+- **Debug Mode**: New `debug` option in config to enable size information in markdown output:
+  ```markdown
+  <!-- accept-md: html_size=52480 bytes, markdown_size=20480 bytes, reduction=61% -->
+  ```
+- **Frontmatter Configuration**: New `includeFrontmatter` option (default: `true`) to control whether YAML frontmatter is included in output
+
+### Changed
+
+- **Cache Structure**: Cache entries now use `CacheEntry` interface with `markdown`, `expiresAt`, and `buildId` fields. Backward compatible with old `Map<string, string>` format.
+- **Performance**: Optimized HTML parsing to single-pass extraction for metadata and JSON-LD scripts
+
+### Documentation
+
+- Added comprehensive "Output Format" section explaining YAML frontmatter and JSON-LD inclusion
+- Added detailed cache behavior documentation explaining build/ISR detection
+- Updated README with examples of structured data output
+
 ## [1.0.27] - 2025-02-05
 
 ### Fixed

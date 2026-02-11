@@ -1,6 +1,6 @@
 {
   "name": "accept-md",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "private": true,
   "description": "Serve markdown representations of Next.js pages via Accept: text/markdown. Accept-md is a middleware that converts HTML pages to Markdown, which can be useful for SEO, API access, and other use cases.",
   "type": "module",

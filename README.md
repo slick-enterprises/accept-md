@@ -21,6 +21,79 @@ No Puppeteer, no custom server, no edits to your page components.
 
 **Note:** Next.js is moving away from middleware (renaming it to "proxy"). This package now prefers using `next.config` rewrites, which are more performant and future-proof. Middleware is still supported for backward compatibility.
 
+## Output Format
+
+The markdown output includes your page content plus structured metadata:
+
+### YAML Frontmatter
+
+HTML meta tags are automatically extracted and included as YAML frontmatter at the top of the markdown:
+
+```yaml
+---
+title: "Page Title"
+description: "Page description"
+keywords:
+  - "tag1"
+  - "tag2"
+author: "Author Name"
+canonical: "https://example.com/page"
+language: "en"
+og_title: "OpenGraph Title"
+og_description: "OpenGraph Description"
+og_type: "website"
+og_url: "https://example.com/page"
+og_image: "https://example.com/image.jpg"
+og_site_name: "Site Name"
+og_locale: "en_US"
+article_author: "Article Author"
+article_published_time: "2024-01-01T00:00:00Z"
+twitter_card: "summary_large_image"
+twitter_title: "Twitter Title"
+robots_index: true
+robots_follow: true
+---
+
+# Your Content Here
+```
+
+**Supported meta tags:**
+- Basic: `title`, `description`, `keywords`, `author`, `canonical`, `robots`
+- OpenGraph: `og:title`, `og:description`, `og:type`, `og:url`, `og:image`, `og:site_name`, `og:locale`
+- Article: `article:author`, `article:published_time`, `article:modified_time`, `article:section`, `article:tag`
+- Twitter: `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:creator`, `twitter:site`
+
+You can disable frontmatter by setting `includeFrontmatter: false` in the markdown options (advanced usage).
+
+### JSON-LD Structured Data
+
+JSON-LD scripts (`<script type="application/ld+json">`) are extracted and included as formatted JSON code blocks at the end of the markdown:
+
+````markdown
+# Your Content Here
+
+## Structured Data (JSON-LD)
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Article Title",
+  "author": {
+    "@type": "Person",
+    "name": "Author Name"
+  }
+}
+```
+````
+
+This preserves structured data for LLMs and search engines, making your markdown output more semantically rich and useful for AI ingestion.
+
+**Benefits:**
+- **LLM-friendly**: Structured metadata in YAML frontmatter is easy for AI models to parse
+- **SEO-preserved**: JSON-LD structured data is maintained for search engine understanding
+- **Complete**: All metadata from your HTML is preserved in the markdown output
+
 ## Installation
 
 ### 1. Run init (recommended)
@@ -202,8 +275,54 @@ accept-md/
 
 ## Caching & build behavior
 
-- **SSG**: First request with `Accept: text/markdown` triggers a render of the page (as HTML), conversion to markdown, and optional in-memory cache. Subsequent requests can be served from cache.
-- **SSR / ISR**: Same as above; markdown is generated on demand and cached per your config. Cache headers follow the handler (`Cache-Control` when `cache: true`).
+accept-md uses intelligent caching that respects Next.js build and ISR revalidation cycles:
+
+### In-Memory Cache
+
+The in-memory cache (enabled by default) persists until:
+
+1. **New build detected**: Cache automatically invalidates when `BUILD_ID` environment variable changes (Next.js sets this on each build)
+2. **ISR revalidation**: Cache respects the `x-next-revalidate` header from Next.js responses and expires entries when revalidation time is reached
+3. **Serverless function restart**: Cache is cleared when the function instance is recycled (typically after ~10 minutes of inactivity on Vercel)
+
+### Cache Behavior by Rendering Strategy
+
+- **SSG (Static)**: First request generates markdown and caches it. Cache persists until next build (detected via `BUILD_ID` change)
+- **ISR (Incremental Static Regeneration)**: Cache respects the `x-next-revalidate` header. Entries expire based on the revalidation time specified in your page
+- **SSR (Server-Side Rendering)**: Markdown is generated on demand and cached. Cache persists until function restart or manual invalidation
+
+### HTTP Cache Headers
+
+When `cache: true` in config, responses include:
+- `Cache-Control: public, s-maxage=60, stale-while-revalidate` (default)
+- The `s-maxage` can be extended to match ISR revalidation times (future enhancement)
+
+### Debug Mode
+
+Enable debug mode in your config to see size information:
+
+```javascript
+// accept-md.config.js
+module.exports = {
+  debug: true,
+  // ...
+};
+```
+
+This adds a comment to the markdown output:
+```markdown
+<!-- accept-md: html_size=52480 bytes, markdown_size=20480 bytes, reduction=61% -->
+```
+
+### Cache Configuration
+
+```javascript
+// accept-md.config.js
+module.exports = {
+  cache: true,  // Enable caching (default: true)
+  // cache: false, // Disable caching
+};
+```
 
 The runtime does not pre-generate markdown at build time; it generates on first request and then caches. This keeps the implementation simple and avoids custom build steps.
 
