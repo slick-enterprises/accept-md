@@ -166,7 +166,16 @@ function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): bo
 function addRewriteToNextConfig(projectRoot: string, configPath: string): { success: boolean; message: string } {
   try {
     const fullPath = join(projectRoot, configPath);
-    const content = readFileSync(fullPath, 'utf-8');
+    let content = readFileSync(fullPath, 'utf-8');
+    
+    // Detect if this is an ES module (.mjs or uses export default)
+    const isESModule = configPath.endsWith('.mjs') || /export\s+default/.test(content);
+    
+    // Ensure .mjs files use export default, not module.exports
+    if (isESModule && /module\.exports\s*=/.test(content)) {
+      // Replace module.exports with export default
+      content = content.replace(/module\.exports\s*=\s*nextConfig;?/, 'export default nextConfig;');
+    }
     
     // Check if rewrites already exist
     const hasRewrites = /rewrites\s*[:=]/.test(content);
@@ -195,12 +204,18 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
         const nextBracket = afterBracket.indexOf(']');
         const arrayContent = afterBracket.slice(0, nextBracket).trim();
         const needsComma = arrayContent.length > 0 && !arrayContent.endsWith(',');
-        const newContent =
+        let newContent =
           content.slice(0, insertPos) +
           (needsComma ? ',\n' : '') +
           rewriteStr +
           '\n' +
           content.slice(insertPos);
+        
+        // Ensure ES modules use export default
+        if (isESModule && /module\.exports\s*=/.test(newContent)) {
+          newContent = newContent.replace(/module\.exports\s*=\s*nextConfig;?/, 'export default nextConfig;');
+        }
+        
         writeFileSync(fullPath, newContent);
         return { success: true, message: `Added accept-md rewrite to ${configPath}.` };
       }
@@ -209,12 +224,18 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
       const rewritesMatch = content.match(/rewrites\s*[:=]\s*\{/);
       if (rewritesMatch) {
         const insertPos = rewritesMatch.index! + rewritesMatch[0].length;
-        const newContent =
+        let newContent =
           content.slice(0, insertPos) +
           '\n    beforeFiles: [\n' +
           rewriteStr +
           '\n    ],\n' +
           content.slice(insertPos);
+        
+        // Ensure ES modules use export default
+        if (isESModule && /module\.exports\s*=/.test(newContent)) {
+          newContent = newContent.replace(/module\.exports\s*=\s*nextConfig;?/, 'export default nextConfig;');
+        }
+        
         writeFileSync(fullPath, newContent);
         return { success: true, message: `Added accept-md rewrite to ${configPath}.` };
       }
@@ -248,7 +269,19 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
                   rewriteStr +
                   '\n      ],\n    };\n  },\n' +
                   content.slice(pos);
-                writeFileSync(fullPath, newContent);
+                
+                // Ensure ES modules use export default
+                let finalContent = newContent;
+                if (isESModule && !/export\s+default/.test(finalContent)) {
+                  // Replace module.exports with export default if it exists
+                  finalContent = finalContent.replace(/module\.exports\s*=\s*nextConfig;?/, 'export default nextConfig;');
+                  // Or add export default if it doesn't exist
+                  if (!/export\s+default/.test(finalContent) && !/module\.exports/.test(finalContent)) {
+                    finalContent = finalContent.trimEnd() + '\n\nexport default nextConfig;';
+                  }
+                }
+                
+                writeFileSync(fullPath, finalContent);
                 return { success: true, message: `Added accept-md rewrite to ${configPath}.` };
               }
             }
