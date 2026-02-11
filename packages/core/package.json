@@ -1,6 +1,6 @@
 {
   "name": "@accept-md/core",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Route scanning, config types, and project detection for accept-md",
   "type": "module",
   "license": "MIT",

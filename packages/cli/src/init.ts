@@ -57,7 +57,7 @@ export async function getRuntimeVersion(): Promise<string> {
     // Fall through to default
   }
   // Fallback: use current version (update this when publishing)
-  return '4.0.0';
+  return '4.0.1';
 }
 
 /**
@@ -196,9 +196,9 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
     
     // Format the rewrite object as a string (JS-compatible)
     // Next.js rewrites support path parameter expansion in destination paths (not query strings)
-    // Exclude /api/ and /_next/ paths to avoid conflicts
+    // Use catch-all pattern - exclusions are handled in the handler
     const rewriteStr = `    {
-      source: '/:path((?!api|_next).)*',
+      source: '/:path*',
       destination: '/api/accept-md/:path*',
       has: [
         {
