@@ -25,11 +25,7 @@ export async function GET(request) {
     path = '/' + path;
   }
   const config = loadConfig(process.cwd());
-  // Construct baseUrl reliably: prefer config, then use request origin, fall back to localhost
-  let baseUrl = config.baseUrl;
-  if (!baseUrl) {
-    baseUrl = request.nextUrl.origin || 'http://localhost:' + (process.env.PORT || 3000);
-  }
+  const baseUrl = config.baseUrl || request.nextUrl.origin;
   try {
     const markdown = await getMarkdownForPath({
       pathname: path,

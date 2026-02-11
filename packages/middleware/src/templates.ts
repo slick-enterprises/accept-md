@@ -37,9 +37,27 @@ export async function GET(request) {
   const pathFromHeader = request.headers.get('x-accept-md-path');
   const pathFromQuery = request.nextUrl.searchParams.get('path');
   const pathname = request.nextUrl.pathname;
-  const path = pathFromHeader ?? pathFromQuery ?? (pathname !== HANDLER_PATH ? pathname : null) ?? '/';
+  // Never use the handler path itself - always prefer header, then query, then pathname (if not handler), then default to '/'
+  let path = pathFromHeader;
+  if (!path || path.trim() === '') {
+    path = pathFromQuery && pathFromQuery.trim() !== '' ? pathFromQuery : null;
+  }
+  if (!path) {
+    path = pathname !== HANDLER_PATH ? pathname : null;
+  }
+  if (!path || path === HANDLER_PATH) {
+    path = '/';
+  }
+  // Ensure path starts with /
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
   const config = loadConfig(process.cwd());
-  const baseUrl = config.baseUrl || request.nextUrl.origin;
+  // Construct baseUrl reliably: prefer config, then use request origin, fall back to localhost
+  let baseUrl = config.baseUrl;
+  if (!baseUrl) {
+    baseUrl = request.nextUrl.origin || 'http://localhost:' + (process.env.PORT || 3000);
+  }
   try {
     const markdown = await getMarkdownForPath({
       pathname: path,
