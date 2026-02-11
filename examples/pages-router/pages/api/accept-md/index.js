@@ -12,7 +12,15 @@ export default async function handler(req, res) {
   const pathFromHeader = req.headers['x-accept-md-path'];
   const pathFromQuery = Array.isArray(req.query.path) ? req.query.path[0] : req.query.path;
   const pathRaw = (pathFromHeader || pathFromQuery) || '/';
-  const path = typeof pathRaw === 'string' ? pathRaw : (pathRaw[0] || '/');
+  let path = typeof pathRaw === 'string' ? pathRaw : (pathRaw[0] || '/');
+  // Ensure path starts with /
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
+  // Exclude /api and /_next paths - return 404 for these
+  if (path.startsWith('/api/') || path.startsWith('/_next/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
   const config = loadConfig(process.cwd());
   // Construct baseUrl reliably on Vercel: use host header with protocol, fall back to origin/referer, then VERCEL_URL, then localhost
   let baseUrl = config.baseUrl;

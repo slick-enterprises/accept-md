@@ -21,9 +21,23 @@ alwaysApply: false
 
 - Use `routeExt = detection.hasTypeScript ? 'ts' : 'js'` when writing the handler file. Do not hardcode `.ts` only.
 - Write the **template as-is** (no TypeScript-only additions). Doctor must accept both `route.ts` and `route.js` (and both `index.ts` and `index.js` for Pages).
+- **Next.js rewrite pattern**: Use catch-all `/:path*` in `next.config.js` rewrites (not complex regex like `/:path((?!api|_next).)*`). The complex regex doesn't match sub-routes reliably in Next.js. Exclusions for `/api` and `/_next` are handled in the handler code, not in the rewrite pattern.
+
+## Handler path exclusion logic
+
+- The handler template (`APP_ROUTE_HANDLER_TEMPLATE`) must include exclusion logic that returns 404 for paths starting with `/api/` or `/_next/`:
+  ```javascript
+  // Exclude /api and /_next paths - return 404 for these
+  if (path.startsWith('/api/') || path.startsWith('/_next/')) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+  ```
+- This prevents conflicts with Next.js internal routes and API routes.
+- The rewrite pattern uses catch-all `/:path*` to match all routes, then the handler filters out excluded paths.
 
 ## Do not
 
 - Add TypeScript-only syntax (e.g. `import type`, `: NextRequest`) to the template strings.
 - Change examples back to `route.ts` / `index.ts` only.
 - Remove the JS path in init or doctor.
+- Use complex regex patterns in Next.js rewrite `source` fields - they don't work reliably for sub-routes. Use catch-all patterns and handle exclusions in code.

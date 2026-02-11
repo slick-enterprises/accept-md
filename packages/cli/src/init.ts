@@ -57,7 +57,7 @@ export async function getRuntimeVersion(): Promise<string> {
     // Fall through to default
   }
   // Fallback: use current version (update this when publishing)
-  return '4.0.1';
+  return '4.0.2';
 }
 
 /**
@@ -195,11 +195,11 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
     }
     
     // Format the rewrite object as a string (JS-compatible)
-    // Next.js rewrites support path parameter expansion in destination paths (not query strings)
-    // Use catch-all pattern - exclusions are handled in the handler
+    // Use query string format in destination for reliable path parameter expansion
+    // Query string format works more reliably than path parameters for catch-all patterns
     const rewriteStr = `    {
       source: '/:path*',
-      destination: '/api/accept-md/:path*',
+      destination: '/api/accept-md?path=:path*',
       has: [
         {
           type: 'header',
@@ -573,8 +573,8 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         {
-          source: '/:path((?!api|_next).)*',
-          destination: '/api/accept-md/:path*',
+          source: '/:path*',
+          destination: '/api/accept-md?path=:path*',
           has: [
             {
               type: 'header',
@@ -596,8 +596,8 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: '/:path((?!api|_next).)*',
-          destination: '/api/accept-md/:path*',
+          source: '/:path*',
+          destination: '/api/accept-md?path=:path*',
           has: [
             {
               type: 'header',
