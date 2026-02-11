@@ -49,6 +49,7 @@ describe('templates', () => {
 
   it('App route handler reads path from header first, then query, then pathname', () => {
     expect(APP_ROUTE_HANDLER_TEMPLATE).toContain("request.headers.get('x-accept-md-path')");
+    expect(APP_ROUTE_HANDLER_TEMPLATE).toContain('pathFromMatchedHeader');
     expect(APP_ROUTE_HANDLER_TEMPLATE).toContain('pathFromQuery');
     expect(APP_ROUTE_HANDLER_TEMPLATE).toContain('pathFromHeader');
     expect(APP_ROUTE_HANDLER_TEMPLATE).toContain('Never use the handler path itself');
@@ -56,6 +57,7 @@ describe('templates', () => {
 
   it('Pages API handler reads path from header first, then query', () => {
     expect(PAGES_API_HANDLER_TEMPLATE).toContain("req.headers['x-accept-md-path']");
-    expect(PAGES_API_HANDLER_TEMPLATE).toContain('pathFromHeader || pathFromQuery');
+    expect(PAGES_API_HANDLER_TEMPLATE).toContain('pathFromMatchedHeader');
+    expect(PAGES_API_HANDLER_TEMPLATE).toContain('pathFromQuery');
   });
 });
