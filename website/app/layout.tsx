@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -120,6 +121,18 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen font-sans antialiased bg-ink-950 text-ink-50 bg-grid">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KHJV0Y5CRX"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KHJV0Y5CRX');
+          `}
+        </Script>
         {children}
       </body>
     </html>
