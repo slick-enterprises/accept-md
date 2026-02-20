@@ -7,6 +7,7 @@ import {
   MIDDLEWARE_TEMPLATE,
   APP_ROUTE_HANDLER_TEMPLATE,
   PAGES_API_HANDLER_TEMPLATE,
+  SVELTEKIT_ROUTE_HANDLER_TEMPLATE,
 } from './templates.js';
 
 describe('templates', () => {
@@ -39,6 +40,13 @@ describe('templates', () => {
     noTsParam(MIDDLEWARE_TEMPLATE);
     noTsParam(APP_ROUTE_HANDLER_TEMPLATE);
     noTsParam(PAGES_API_HANDLER_TEMPLATE);
+    noTsParam(SVELTEKIT_ROUTE_HANDLER_TEMPLATE);
+  });
+
+  it('SVELTEKIT_ROUTE_HANDLER_TEMPLATE exports a GET handler and calls getMarkdownForPath', () => {
+    expect(SVELTEKIT_ROUTE_HANDLER_TEMPLATE).toContain('export async function GET(');
+    expect(SVELTEKIT_ROUTE_HANDLER_TEMPLATE).toContain('getMarkdownForPath');
+    expect(SVELTEKIT_ROUTE_HANDLER_TEMPLATE).toContain('loadConfig');
   });
 
   it('middleware rewrites to handler with original path in query', () => {
