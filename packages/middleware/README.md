@@ -1,6 +1,6 @@
 # accept-md-runtime
 
-Runtime for [accept-md](https://github.com/slick-enterprises/accept-md): HTML-to-Markdown conversion and the handler that serves markdown for Next.js pages when clients send `Accept: text/markdown`. Use this in your Next.js API route or Route Handler.
+Runtime for [accept-md](https://github.com/slick-enterprises/accept-md): HTML-to-Markdown conversion and the handler that serves markdown for Next.js or SvelteKit pages when clients send `Accept: text/markdown`. Use this in your Next.js API route / Route Handler or SvelteKit `+server` route.
 
 ## Installation
 
@@ -13,7 +13,7 @@ pnpm add accept-md-runtime
 
 ## Quick setup
 
-1. Add middleware that rewrites `Accept: text/markdown` requests to your handler (e.g. `/api/accept-md?path=...`).
+1. Add rewrites or middleware (Next.js) or a `hooks.server` handle (SvelteKit) that rewrites `Accept: text/markdown` requests to your handler (e.g. `/api/accept-md?path=...`).
 2. In that API route / Route Handler, call `getMarkdownForPath` with the request and path.
 
 Or use the CLI: `npx accept-md init` to generate middleware and handler for you.
