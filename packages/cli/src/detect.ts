@@ -1,10 +1,10 @@
 /**
- * Detect Next.js project, router type, and existing middleware.
+ * Detect framework (Next.js or SvelteKit), router type, and existing middleware/config.
  */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ProjectDetection } from '@accept-md/core';
+import type { FrameworkType, ProjectDetection } from '@accept-md/core';
 
 function hasNextInPackage(pkgPath: string): boolean {
   try {
@@ -80,6 +80,9 @@ export function detectProject(projectRoot: string): ProjectDetection {
   let nextVersion: string | undefined;
   let isNext = false;
   let nextAppPath: string | undefined;
+  let isSvelteKit = false;
+  let svelteConfigPath: string | null = null;
+  let svelteKitRoutesDir: string | null = null;
   if (existsSync(pkgPath)) {
     try {
       const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
@@ -94,11 +97,34 @@ export function detectProject(projectRoot: string): ProjectDetection {
         isNext = true;
         nextVersion = typeof nextDep === 'string' ? nextDep : undefined;
       }
+      if (deps['@sveltejs/kit']) {
+        isSvelteKit = true;
+      }
     } catch {
       //
     }
   }
   if (!isNext) nextAppPath = findNextAppInWorkspace(projectRoot);
+
+  // SvelteKit routes directory and config detection
+  const svelteRoutesCandidates = ['src/routes', 'routes'];
+  for (const p of svelteRoutesCandidates) {
+    if (existsSync(join(projectRoot, p))) {
+      svelteKitRoutesDir = p;
+      break;
+    }
+  }
+  const svelteConfigCandidates = ['svelte.config.js', 'svelte.config.ts', 'svelte.config.cjs', 'svelte.config.mjs'];
+  for (const p of svelteConfigCandidates) {
+    if (existsSync(join(projectRoot, p))) {
+      svelteConfigPath = p;
+      break;
+    }
+  }
+  // If we have clear SvelteKit structure but no explicit dependency yet, treat it as SvelteKit.
+  if (!isSvelteKit && svelteKitRoutesDir && svelteConfigPath) {
+    isSvelteKit = true;
+  }
   const appDirCandidates = ['src/app', 'app'];
   const pagesDirCandidates = ['src/pages', 'pages'];
   let appDir: string | null = null;
@@ -141,7 +167,13 @@ export function detectProject(projectRoot: string): ProjectDetection {
   const hasTypeScript = existsSync(join(projectRoot, 'tsconfig.json'));
   const hasRewriteConfig = hasAcceptMdRewrite(projectRoot);
 
+  let framework: FrameworkType | undefined;
+  if (isNext && routerType === 'app') framework = 'next-app';
+  else if (isNext && routerType === 'pages') framework = 'next-pages';
+  else if (!isNext && isSvelteKit) framework = 'sveltekit';
+
   return {
+    framework,
     isNext,
     routerType,
     hasAppDir,
@@ -152,6 +184,9 @@ export function detectProject(projectRoot: string): ProjectDetection {
     middlewarePath,
     configPath,
     nextAppPath,
+    isSvelteKit,
+    svelteKitRoutesDir,
+    svelteConfigPath,
     hasTypeScript,
     hasRewriteConfig,
   };

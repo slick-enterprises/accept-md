@@ -3,31 +3,31 @@ import { ArrowRight, BookOpen } from "lucide-react";
 
 export function CTA() {
   return (
-    <section className="border-t border-ink-800/80 px-4 py-section sm:px-6 lg:px-8">
+    <section className="border-t border-ink-800/60 bg-gradient-to-b from-ink-900/30 via-ink-950 to-ink-950 px-4 py-section sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl text-center">
         <p className="section-label">Ready?</p>
-        <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-3 font-display text-4xl tracking-tight text-white sm:text-5xl md:text-6xl">
           Serve Markdown from your app
         </h2>
-        <p className="mt-4 text-lg text-ink-400">
+        <p className="mt-4 text-lg leading-relaxed text-ink-300">
           Add accept-md to your Next.js app and keep your pages unchanged.
         </p>
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href="https://github.com/slick-enterprises/accept-md"
             target="_blank"
             rel="noopener noreferrer"
-            className="glow-border inline-flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-3.5 font-semibold text-white transition hover:bg-brand-400"
+            className="btn-primary group relative inline-flex items-center gap-2.5 rounded-xl px-8 py-4 font-semibold text-white"
           >
-            GitHub
-            <ArrowRight className="h-4 w-4" />
+            <span className="relative z-10">GitHub</span>
+            <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </a>
           <Link
             href="/docs"
-            className="inline-flex items-center gap-2 rounded-xl border border-ink-700 bg-transparent px-6 py-3.5 font-semibold text-white transition hover:border-ink-600 hover:bg-ink-800/50"
+            className="btn-secondary group relative inline-flex items-center gap-2.5 rounded-xl px-8 py-4 font-semibold text-white"
           >
-            <BookOpen className="h-4 w-4" />
-            Read the docs
+            <BookOpen className="relative z-10 h-4 w-4 transition-transform group-hover:scale-110" />
+            <span className="relative z-10">Read the docs</span>
           </Link>
         </div>
       </div>

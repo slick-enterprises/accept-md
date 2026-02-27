@@ -98,7 +98,7 @@ This preserves structured data for LLMs and search engines, making your markdown
 
 ### 1. Run init (recommended)
 
-From your Next.js project root:
+From your Next.js or SvelteKit project root:
 
 ```bash
 npx accept-md init
@@ -114,11 +114,17 @@ The `@latest` flag ensures you get the most recent version even if npx has a cac
 
 This will:
 
-- Detect App Router vs Pages Router (supports both root and **src/** layout: `app` or `src/app`, `pages` or `src/pages`)
-- Add rewrites to `next.config.js/ts` (preferred) or create/update middleware (at `middleware.ts` or `src/middleware.ts`) to rewrite `Accept: text/markdown` to the markdown handler
-- Add the handler at `app/api/accept-md/route.ts` or `route.js` (or under `src/`; App Router), or `pages/api/accept-md/index.ts` or `index.js` (Pages Router)
-- Create `accept-md.config.js`
-- Add `accept-md-runtime` to your dependencies
+- Detect **framework and router**:
+  - Next.js App Router vs Pages Router (supports both root and **src/** layout: `app` or `src/app`, `pages` or `src/pages`)
+  - SvelteKit (looks for `@sveltejs/kit`, `svelte.config.*`, and `routes` / `src/routes`)
+- For **Next.js**:
+  - Add rewrites to `next.config.js/ts` (preferred) or create/update middleware (at `middleware.ts` or `src/middleware.ts`) to rewrite `Accept: text/markdown` to the markdown handler
+  - Add the handler at `app/api/accept-md/route.ts` or `route.js` (or under `src/`; App Router), or `pages/api/accept-md/index.ts` or `index.js` (Pages Router)
+- For **SvelteKit**:
+  - Add a route handler at `src/routes/api/accept-md/[...path]/+server.ts` or `+server.js` (or under `routes/` if you don't use `src/`)
+- For **all frameworks**:
+  - Create `accept-md.config.js` if it doesn’t exist
+  - Add `accept-md-runtime` to your dependencies
 
 When run interactively, init prompts for the app/pages directory and middleware file path; press **Enter** to use the detected defaults. You can also pass paths via flags (see [CLI](#cli) below). In a **monorepo**, run `npx accept-md init` from the directory that contains the Next.js app (the folder whose `package.json` has `next`); if you run from the repo root, the CLI will suggest the correct subdirectory (e.g. `cd apps/web && npx accept-md init`).
 
@@ -137,7 +143,16 @@ Install the runtime:
 pnpm add accept-md-runtime
 ```
 
-Add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md/:path*` (path parameter), and add the API route / Route Handler that calls `getMarkdownForPath` from the package. See the [examples](./examples) for full code.
+For **Next.js**, add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md/:path*` (path parameter), and add the API route / Route Handler that calls `getMarkdownForPath` from the package.
+
+For **SvelteKit**, add a route like:
+
+- `src/routes/api/accept-md/[...path]/+server.js` (or `.ts`), which:
+  - Reads the original path from the `path` query parameter or from the URL suffix after `/api/accept-md/`
+  - Calls `getMarkdownForPath({ pathname, baseUrl, config, cache, headers })`
+  - Returns a `Response` with `Content-Type: text/markdown; charset=utf-8`
+
+See the [examples](./examples) for full code for both Next.js and SvelteKit.
 
 ## Usage
 

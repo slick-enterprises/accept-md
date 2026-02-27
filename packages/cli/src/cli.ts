@@ -108,7 +108,7 @@ async function main() {
 accept-md
 
 Usage:
-  npx accept-md init [path]      Add markdown middleware to a Next.js project
+  npx accept-md init [path]      Add markdown handler to a Next.js or SvelteKit project
   npx accept-md doctor [path]    Report routes and check setup
   npx accept-md fix-routes [path] Ensure routes-manifest has dataRoutes (Next.js 15)
   npx accept-md version-check [path] Check version compatibility between CLI and runtime

@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function DocsPage() {
   return (
-    <article className="prose prose-invert max-w-none prose-p:text-ink-300 prose-headings:text-white prose-headings:font-display prose-a:text-brand-400 prose-a:no-underline hover:prose-a:text-brand-300 prose-code:rounded-md prose-code:border prose-code:border-ink-700 prose-code:bg-ink-900/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-code:text-brand-300">
+    <article className="prose prose-invert max-w-none prose-p:text-ink-300 prose-p:leading-relaxed prose-headings:text-white prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-400 prose-a:no-underline hover:prose-a:text-brand-300 prose-code:rounded-md prose-code:border prose-code:border-ink-700/50 prose-code:bg-ink-900/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-code:text-brand-300 prose-code:font-mono prose-code:text-sm prose-pre:bg-gradient-to-br prose-pre:from-ink-900/90 prose-pre:to-ink-950/80 prose-pre:border prose-pre:border-ink-800/60 prose-pre:rounded-card-lg prose-pre:shadow-lg prose-strong:text-white prose-ul:text-ink-300 prose-ol:text-ink-300 prose-li:text-ink-300 prose-li:leading-relaxed prose-blockquote:border-brand-500/30 prose-blockquote:bg-ink-900/30 prose-blockquote:text-ink-300 prose-blockquote:rounded-lg prose-blockquote:pl-4 prose-blockquote:py-2">
       <p className="section-label">Documentation</p>
       <h1 className="mt-3 font-display text-3xl font-bold text-white md:text-4xl">
         Get started
@@ -19,7 +19,7 @@ export default function DocsPage() {
         <p className="mt-2 text-ink-300">
           From your Next.js project root, run:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800 bg-ink-900/90 p-5 font-mono text-sm leading-relaxed text-ink-200">
+        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
           npx accept-md init
         </pre>
         <p className="mt-4 text-ink-400">
@@ -32,12 +32,33 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-display text-xl font-semibold text-white">
+          SvelteKit support
+        </h2>
+        <p className="mt-2 text-ink-300">
+          accept-md also works with SvelteKit. From your SvelteKit project
+          root, run:
+        </p>
+        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
+          npx --yes accept-md@canary init
+        </pre>
+        <p className="mt-4 text-ink-400">
+          This detects your <code>routes/</code> or <code>src/routes/</code>{" "}
+          directory and generates{" "}
+          <code>src/routes/api/accept-md/[...path]/+server.js</code> (or{" "}
+          <code>.ts</code>) plus a shared <code>accept-md.config.js</code>. The{" "}
+          <code>@canary</code> tag gives you the latest SvelteKit-aware
+          runtime.
+        </p>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-display text-xl font-semibold text-white">
           Usage
         </h2>
         <p className="mt-2 text-ink-300">
           Request any route with the Markdown accept header:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800 bg-ink-900/90 p-5 font-mono text-sm leading-relaxed text-ink-200">
+        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
           {`curl -H "Accept: text/markdown" https://your-site.com/
 curl -H "Accept: text/markdown" https://your-site.com/about
 curl -H "Accept: text/markdown" https://your-site.com/posts/123`}
@@ -55,7 +76,7 @@ curl -H "Accept: text/markdown" https://your-site.com/posts/123`}
         <p className="mt-2 text-ink-300">
           Edit <code>accept-md.config.js</code> in your project root:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800 bg-ink-900/90 p-5 font-mono text-sm leading-relaxed text-ink-200">
+        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
           {`/** @type { import('accept-md-runtime').NextMarkdownConfig } */
 module.exports = {
   include: ['/**'],
@@ -108,14 +129,14 @@ module.exports = {
         </ul>
       </section>
 
-      <div className="mt-16 rounded-card-lg border border-ink-800 bg-ink-900/50 p-6">
-        <p className="text-ink-300">
+      <div className="mt-16 rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/50 to-ink-950/80 p-6 backdrop-blur-sm">
+        <p className="text-ink-300 leading-relaxed">
           For full details, examples, and contributing, see the{" "}
           <a
             href="https://github.com/slick-enterprises/accept-md#readme"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-brand-400 hover:text-brand-300"
+            className="font-medium text-brand-400 underline decoration-brand-500/50 underline-offset-4 transition-colors hover:text-brand-300 hover:decoration-brand-400"
           >
             GitHub README
           </a>
@@ -123,9 +144,9 @@ module.exports = {
         </p>
         <Link
           href="/"
-          className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand-400 hover:text-brand-300"
+          className="group mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Back to home
         </Link>
       </div>

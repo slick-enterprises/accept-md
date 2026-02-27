@@ -66,13 +66,31 @@ jobs:
       - name: Build
         run: pnpm --filter '@accept-md/core' --filter 'accept-md-runtime' --filter './packages/cli' --filter './website' run build
 
+      - name: Determine npm dist-tag
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME:-}"
+          if [ -z "$TAG" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          echo "Publishing tag: $TAG"
+          if [[ "$TAG" == *"-canary."* ]]; then
+            echo "NPM_DIST_TAG=canary" >> "$GITHUB_ENV"
+          else
+            echo "NPM_DIST_TAG=" >> "$GITHUB_ENV"
+          fi
+
       # Publish in dependency order: core and runtime first, then CLI (depends on both).
       # Delays between publishes reduce 409 "packument not fully processed" from the registry.
       - name: Publish to npm
         run: |
-          pnpm --filter '@accept-md/core' publish --no-git-checks --access public
+          TAG_ARGS=""
+          if [ -n "${NPM_DIST_TAG}" ]; then
+            TAG_ARGS="--tag ${NPM_DIST_TAG}"
+          fi
+          pnpm --filter '@accept-md/core' publish --no-git-checks --access public ${TAG_ARGS}
           sleep 15
-          pnpm --filter 'accept-md-runtime' publish --no-git-checks --access public
+          pnpm --filter 'accept-md-runtime' publish --no-git-checks --access public ${TAG_ARGS}
           sleep 15
-          pnpm --filter './packages/cli' publish --no-git-checks --access public
+          pnpm --filter './packages/cli' publish --no-git-checks --access public ${TAG_ARGS}
         # Authentication: use npm Trusted Publisher (OIDC) for this workflow; no NODE_AUTH_TOKEN needed.

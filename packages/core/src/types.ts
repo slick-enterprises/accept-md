@@ -1,8 +1,18 @@
 /**
- * Route types and metadata for Next.js route detection.
+ * Route types and metadata for framework route detection.
+ * Currently supports Next.js (App Router, Pages Router).
  */
 
 export type RouterType = 'app' | 'pages';
+
+/**
+ * High-level framework classification for a detected project.
+ *
+ * - 'next-app'   → Next.js project using the App Router
+ * - 'next-pages' → Next.js project using the Pages Router
+ * - 'sveltekit'  → SvelteKit project (file-based routes in routes/ or src/routes/)
+ */
+export type FrameworkType = 'next-app' | 'next-pages' | 'sveltekit';
 
 export type RouteSegmentType =
   | 'page'
@@ -62,6 +72,16 @@ export interface NextMarkdownConfig {
 }
 
 export interface ProjectDetection {
+  /**
+   * High-level framework classification for this project.
+   * For backward compatibility, this is optional; older callers can continue
+   * to use the more specific flags (isNext, routerType, isSvelteKit, etc).
+   */
+  framework?: FrameworkType;
+
+  /**
+   * Next.js-specific detection.
+   */
   isNext: boolean;
   routerType: RouterType | null;
   hasAppDir: boolean;
@@ -75,6 +95,19 @@ export interface ProjectDetection {
   configPath: string | null;
   /** If in a monorepo: path to a subdirectory whose package.json has "next" (e.g. "apps/web") */
   nextAppPath?: string;
+
+  /**
+   * SvelteKit-specific detection.
+   *
+   * These fields are additive and do not affect existing Next.js behavior.
+   */
+  /** Whether the current project looks like a SvelteKit app (has @sveltejs/kit and routes directory). */
+  isSvelteKit?: boolean;
+  /** Relative path to the SvelteKit routes directory, e.g. 'src/routes' or 'routes'. */
+  svelteKitRoutesDir?: string | null;
+  /** Optional path to svelte.config.js/ts if present. */
+  svelteConfigPath?: string | null;
+
   /** Whether the project uses TypeScript (tsconfig.json present); used to generate .ts or .js handler */
   hasTypeScript?: boolean;
   /** Whether next.config has accept-md rewrite configuration (preferred over middleware) */

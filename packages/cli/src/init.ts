@@ -6,11 +6,12 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { detectProject } from './detect.js';
-import { scanProject } from '@accept-md/core';
+import { scanProject, type ProjectDetection } from '@accept-md/core';
 import {
   MIDDLEWARE_TEMPLATE,
   APP_ROUTE_HANDLER_TEMPLATE,
   PAGES_API_HANDLER_TEMPLATE,
+  SVELTEKIT_ROUTE_HANDLER_TEMPLATE,
 } from 'accept-md-runtime';
 
 const MARKDOWN_MARKER = 'accept-md';
@@ -35,13 +36,9 @@ async function fetchLatestVersionFromRegistry(packageName: string): Promise<stri
 
 /** Get the current CLI version to use for accept-md-runtime. */
 export async function getRuntimeVersion(): Promise<string> {
-  // Try fetching latest from npm registry first
-  const latestVersion = await fetchLatestVersionFromRegistry('accept-md');
-  if (latestVersion) {
-    return latestVersion; // Return exact version, no ^ prefix
-  }
-
-  // Fallback to local package.json version
+  // IMPORTANT: runtime must match the *running CLI* version.
+  // This keeps canary/pre-release flows correct (e.g. accept-md@4.0.6-canary.0 installs
+  // accept-md-runtime@4.0.6-canary.0, not whatever npm "latest" happens to be).
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -56,8 +53,14 @@ export async function getRuntimeVersion(): Promise<string> {
   } catch {
     // Fall through to default
   }
-  // Fallback: use current version (update this when publishing)
-  return '4.0.2';
+
+  // Last resort: fall back to the latest stable published version.
+  // This should be very rare (only if we cannot read our own package.json).
+  const latestVersion = await fetchLatestVersionFromRegistry('accept-md');
+  if (latestVersion) return latestVersion;
+
+  // Should never happen; returning an invalid version prevents silently pinning the wrong runtime.
+  return '0.0.0';
 }
 
 /**
@@ -481,6 +484,121 @@ export interface InitOverrides {
   middlewarePath?: string;
 }
 
+async function runInitSvelteKit(
+  projectRoot: string,
+  detection: ProjectDetection,
+  messages: string[]
+): Promise<{ ok: boolean; messages: string[] }> {
+  messages.push('Detected SvelteKit project.');
+
+  // Determine routes directory (src/routes or routes)
+  let routesDir = detection.svelteKitRoutesDir ?? null;
+  if (!routesDir) {
+    if (existsSync(join(projectRoot, 'src/routes'))) {
+      routesDir = 'src/routes';
+    } else if (existsSync(join(projectRoot, 'routes'))) {
+      routesDir = 'routes';
+    }
+  }
+  if (!routesDir) {
+    return {
+      ok: false,
+      messages: [
+        ...messages,
+        'Could not find SvelteKit routes directory (expected src/routes or routes).',
+      ],
+    };
+  }
+
+  const hasRoutesDir = existsSync(join(projectRoot, routesDir));
+  if (!hasRoutesDir) {
+    return {
+      ok: false,
+      messages: [
+        ...messages,
+        `SvelteKit routes directory "${routesDir}" does not exist.`,
+      ],
+    };
+  }
+
+  const routeExt = detection.hasTypeScript ? 'ts' : 'js';
+
+  // Create /api/accept-md/[...path]/+server.{js,ts}
+  const handlerDir = join(projectRoot, routesDir, 'api', 'accept-md', '[...path]');
+  mkdirSync(handlerDir, { recursive: true });
+  const handlerPath = join(handlerDir, `+server.${routeExt}`);
+  const handlerContent = SVELTEKIT_ROUTE_HANDLER_TEMPLATE.replace(/\\\\/g, '\\');
+  writeFileSync(handlerPath, handlerContent);
+  messages.push(`Wrote ${join(routesDir, 'api', 'accept-md', '[...path]', `+server.${routeExt}`)}.`);
+
+  // Write accept-md.config.js if it does not exist (shared config shape with Next.js)
+  const configPath = join(projectRoot, 'accept-md.config.js');
+  if (!existsSync(configPath)) {
+    const configContent = `/** @type { import('accept-md-runtime').NextMarkdownConfig } */
+module.exports = {
+  include: ['/**'],
+  exclude: ['/api/**', '/_next/**'],
+  cleanSelectors: ['nav', 'footer', '.no-markdown', '[data-no-markdown]', 'script', 'style'],
+  outputMode: 'markdown',
+  cache: true,
+  transformers: [],
+};
+`;
+    writeFileSync(configPath, configContent);
+    messages.push('Created accept-md.config.js.');
+  } else {
+    messages.push('accept-md.config.js already exists; skipping.');
+  }
+
+  // Ensure accept-md-runtime dependency is present and aligned with CLI version
+  const pkgPath = join(projectRoot, 'package.json');
+  if (existsSync(pkgPath)) {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    let pkgModified = false;
+    const runtimeVersion = await getRuntimeVersion();
+    const hasRuntimeInDeps = pkg.dependencies?.['accept-md-runtime'];
+    const hasRuntimeInDevDeps = pkg.devDependencies?.['accept-md-runtime'];
+
+    // Check version compatibility before installing/updating
+    if (hasRuntimeInDeps || hasRuntimeInDevDeps) {
+      const versionCheck = checkRuntimeVersion(projectRoot, runtimeVersion);
+      if (!versionCheck.compatible) {
+        messages.push(versionCheck.message);
+      }
+    }
+
+    if (!hasRuntimeInDeps && !hasRuntimeInDevDeps) {
+      pkg.dependencies = pkg.dependencies || {};
+      pkg.dependencies['accept-md-runtime'] = runtimeVersion;
+      pkgModified = true;
+      messages.push(
+        `Added accept-md-runtime@${runtimeVersion} to dependencies. Run pnpm install (or npm install).`
+      );
+    } else {
+      // Update existing installation to exact matching version
+      const currentVersion = hasRuntimeInDeps || hasRuntimeInDevDeps;
+      const extractVersion = (v: string): string => v.replace(/^[\^~>=<]+\s*/, '').trim();
+      if (extractVersion(currentVersion) !== runtimeVersion) {
+        if (hasRuntimeInDeps) {
+          pkg.dependencies['accept-md-runtime'] = runtimeVersion;
+        } else {
+          pkg.devDependencies['accept-md-runtime'] = runtimeVersion;
+        }
+        pkgModified = true;
+        messages.push(
+          `Updated accept-md-runtime to ${runtimeVersion}. Run pnpm install (or npm install).`
+        );
+      }
+    }
+
+    if (pkgModified) {
+      writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    }
+  }
+
+  return { ok: true, messages };
+}
+
 /**
  * Check version compatibility between CLI and installed runtime.
  * Exported for use in version-check command.
@@ -516,6 +634,14 @@ export async function runInit(
 ): Promise<{ ok: boolean; messages: string[] }> {
   const messages: string[] = [];
   const detection = detectProject(projectRoot);
+
+  const isSvelteKit =
+    detection.framework === 'sveltekit' || (!!detection.isSvelteKit && !detection.isNext);
+
+  // SvelteKit path: handle before enforcing Next.js-only checks.
+  if (isSvelteKit && !detection.isNext) {
+    return runInitSvelteKit(projectRoot, detection, messages);
+  }
 
   if (!detection.isNext) {
     const msg = detection.nextAppPath
