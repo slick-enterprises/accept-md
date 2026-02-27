@@ -1,10 +1,11 @@
+import React from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAllBlogSlugs, getBlogPost } from "@/lib/blog";
-import { Calendar, User, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CodeBlock } from "@/components/CodeBlock";
 
 interface BlogPostPageProps {
   params: {
@@ -82,59 +83,80 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     keywords: post.keywords.join(", "),
   };
 
+  const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-      <article className="prose prose-invert max-w-none prose-p:text-ink-300 prose-p:leading-relaxed prose-headings:text-white prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-400 prose-a:no-underline hover:prose-a:text-brand-300 prose-code:rounded-md prose-code:border prose-code:border-ink-700/50 prose-code:bg-ink-900/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-code:text-brand-300 prose-code:font-mono prose-code:text-sm prose-pre:bg-gradient-to-br prose-pre:from-ink-900/90 prose-pre:to-ink-950/80 prose-pre:border prose-pre:border-ink-800/60 prose-pre:rounded-card-lg prose-pre:shadow-lg prose-strong:text-white prose-ul:text-ink-300 prose-ol:text-ink-300 prose-li:text-ink-300 prose-li:leading-relaxed prose-blockquote:border-brand-500/30 prose-blockquote:bg-ink-900/30 prose-blockquote:text-ink-300 prose-blockquote:rounded-lg prose-blockquote:pl-4 prose-blockquote:py-2">
-      <div className="mb-10">
-        <Link
-          href="/blog"
-          className="group mb-6 inline-flex items-center gap-2 text-sm font-medium text-ink-400 transition-colors hover:text-brand-400"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Back to blog
-        </Link>
-        <h1 className="mt-4 font-display text-4xl text-white md:text-5xl lg:text-6xl xl:text-7xl">
-          {post.title}
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-ink-300">{post.description}</p>
-        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-ink-400">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-ink-500" />
-            <time dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </time>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <User className="h-4 w-4 text-ink-500" />
+      <article className="blog-article">
+        <nav className="mb-8 text-sm text-ink-500" aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <li>
+              <Link
+                href="/blog"
+                className="transition-colors hover:text-ink-400"
+              >
+                Blog
+              </Link>
+            </li>
+            <li aria-hidden="true">·</li>
+            <li className="text-ink-400" aria-current="page">
+              {post.title}
+            </li>
+          </ol>
+        </nav>
+
+        <header className="mb-12">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-[2.75rem] md:leading-tight">
+            {post.title}
+          </h1>
+          {post.description && (
+            <p className="mt-5 text-lg leading-relaxed text-ink-400">
+              {post.description}
+            </p>
+          )}
+          <p className="mt-6 text-sm text-ink-500">
+            <time dateTime={post.date}>{formattedDate}</time>
+            <span className="mx-2" aria-hidden="true">·</span>
             <span>{post.author}</span>
-          </div>
+          </p>
+        </header>
+
+        <div className="prose prose-invert prose-blog max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              pre({ children }) {
+                const code = React.Children.only(children) as React.ReactElement<{ className?: string; children?: React.ReactNode }>;
+                const lang = (code.props?.className ?? "").match(/language-(\S+)/)?.[1] ?? "text";
+                return (
+                  <CodeBlock language={lang} className="my-6">
+                    {code.props?.children}
+                  </CodeBlock>
+                );
+              },
+            }}
+          >
+            {post.content}
+          </ReactMarkdown>
         </div>
-      </div>
 
-      <div className="prose-content prose-img:rounded-lg prose-img:shadow-lg">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {post.content}
-        </ReactMarkdown>
-      </div>
-
-      <div className="mt-16 rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/50 to-ink-950/80 p-6 backdrop-blur-sm">
-        <Link
-          href="/blog"
-          className="group inline-flex items-center gap-2 text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Back to blog
-        </Link>
-      </div>
-    </article>
+        <footer className="mt-16 pt-8 border-t border-white/5">
+          <Link
+            href="/blog"
+            className="text-sm font-medium text-ink-400 transition-colors hover:text-white"
+          >
+            Back to blog
+          </Link>
+        </footer>
+      </article>
     </>
   );
 }

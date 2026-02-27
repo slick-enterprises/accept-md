@@ -7,11 +7,11 @@ const siteUrl = "https://accept.md";
 export const metadata: Metadata = {
   title: "Blog",
   description:
-    "Learn about Next.js markdown conversion, AI crawlers, and best practices for serving Markdown from your Next.js applications.",
+    "Guides and best practices for serving Markdown from Next.js and SvelteKit — AI crawlers, content syndication, and more.",
   openGraph: {
     title: "Blog | accept-md",
     description:
-      "Learn about Next.js markdown conversion, AI crawlers, and best practices.",
+      "Guides and best practices for serving Markdown from Next.js and SvelteKit.",
     url: `${siteUrl}/blog`,
   },
   alternates: {
@@ -25,9 +25,9 @@ export default function BlogLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-ink-950">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <Header />
-      <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-3xl px-4 pt-16 pb-24 sm:px-6 sm:pt-20 lg:px-8">
         {children}
       </main>
       <Footer />

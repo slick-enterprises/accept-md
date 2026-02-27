@@ -1,45 +1,42 @@
 import Link from "next/link";
-import { Terminal } from "lucide-react";
+import { CodeBlock } from "./CodeBlock";
 
 export function Install() {
   return (
     <section
       id="install"
-      className="scroll-mt-20 border-t border-ink-800/80 bg-ink-900/20 px-4 py-section sm:px-6 lg:px-8"
+      className="scroll-mt-20 border-t border-white/5 px-4 py-section sm:px-6 lg:px-8"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-2xl">
         <p className="section-label">Install</p>
-        <h2 className="mt-3 font-display text-4xl tracking-tight text-white sm:text-5xl md:text-6xl">
-          One command to get started
+        <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          One command. Done.
         </h2>
-        <p className="mt-4 text-lg leading-relaxed text-ink-300">
-          From your Next.js or SvelteKit project root. Init detects your
-          framework and router, then sets up rewrites or hooks plus the handler
-          — ready to deploy on Vercel.
+        <p className="mt-4 text-base leading-relaxed text-ink-400">
+          Run from your project root. The CLI detects your framework, configures
+          middleware or hooks, and wires up the handler — deploy-ready on Vercel.
         </p>
-        <div className="mt-8 overflow-hidden rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-950/95 to-ink-900/60 shadow-xl transition-all duration-500 hover:border-brand-500/30 hover:shadow-2xl">
-          <div className="flex items-center gap-2 border-b border-ink-800/60 bg-gradient-to-r from-ink-900/90 to-ink-900/70 px-4 py-3.5 text-sm text-ink-400 backdrop-blur-sm">
-            <Terminal className="h-4 w-4 text-brand-400" />
-            <span>Your project root</span>
-          </div>
-          <pre className="overflow-x-auto p-6 font-mono text-sm leading-relaxed text-ink-200">
-            <span className="text-ink-500">$</span>{" "}
-            <span className="text-brand-300">npx accept-md init</span>
-            {"\n\n"}
-            <span className="text-ink-500"># Then install deps</span>
-            {"\n"}
-            <span className="text-ink-500">$</span>{" "}
-            <span className="text-ink-200">pnpm install</span>
-          </pre>
-        </div>
-        <p className="mt-6 text-ink-300">
+        <CodeBlock
+          language="bash"
+          title="Your project root"
+          className="mt-10 transition-colors duration-200 hover:border-white/[0.1] hover:bg-white/[0.03]"
+        >
+          <span className="text-ink-600">$</span>{" "}
+          <span className="text-ink-200">npx accept-md init</span>
+          {"\n\n"}
+          <span className="text-ink-600"># Then install deps</span>
+          {"\n"}
+          <span className="text-ink-600">$</span>{" "}
+          <span className="text-ink-300">pnpm install</span>
+        </CodeBlock>
+        <p className="mt-6 text-sm text-ink-400">
           <Link
             href="/docs"
-            className="font-medium text-brand-400 underline decoration-brand-500/50 underline-offset-4 transition-colors hover:text-brand-300 hover:decoration-brand-400"
+            className="font-medium text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white/50"
           >
             Full documentation
           </Link>{" "}
-          — config, CLI (doctor, fix-routes), and manual setup.
+          — configuration, CLI commands, and manual setup.
         </p>
       </div>
     </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Github, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 const GITHUB_REPO = "slick-enterprises/accept-md";
 
@@ -40,7 +40,7 @@ export function GitHubStarWidget({ className = "", variant = "button", onClick }
         target="_blank"
         rel="noopener noreferrer"
         onClick={onClick}
-        className={`inline-flex items-center gap-1.5 rounded-lg border border-ink-700 bg-ink-900/50 px-3 py-1.5 text-sm font-medium text-ink-200 hover:border-ink-600 hover:bg-ink-800/60 hover:text-white transition-colors ${className}`}
+        className={`inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-ink-300 transition-colors duration-200 hover:border-white/20 hover:bg-white/10 hover:text-white ${className}`}
       >
         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
         {isLoading ? (
@@ -58,13 +58,12 @@ export function GitHubStarWidget({ className = "", variant = "button", onClick }
       target="_blank"
       rel="noopener noreferrer"
       onClick={onClick}
-      className={`btn-secondary group relative inline-flex items-center gap-2.5 rounded-xl px-8 py-4 font-semibold text-white ${className}`}
+      className={`btn-secondary inline-flex items-center rounded-lg border border-white/10 px-6 py-3 text-sm font-medium text-white ${className}`}
     >
-      <Github className="relative z-10 h-5 w-5 transition-transform group-hover:scale-110" />
-      <span className="relative z-10">View on GitHub</span>
+      View on GitHub
       {!isLoading && starCount !== null && (
-        <span className="relative z-10 ml-1 inline-flex items-center gap-1 rounded-full border border-ink-600 bg-ink-800/50 px-2.5 py-0.5 text-xs font-medium">
-          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+        <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs font-medium text-ink-400">
+          <Star className="h-3 w-3 fill-amber-400/80 text-amber-400/80" />
           {starCount.toLocaleString()}
         </span>
       )}

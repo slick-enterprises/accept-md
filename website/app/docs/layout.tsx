@@ -7,11 +7,11 @@ const siteUrl = "https://accept.md";
 export const metadata: Metadata = {
   title: "Documentation",
   description:
-    "accept-md documentation: installation, configuration, CLI, and usage for serving Markdown from Next.js pages.",
+    "accept-md docs: install, configure, and serve Markdown from any Next.js or SvelteKit route.",
   openGraph: {
     title: "Documentation | accept-md",
     description:
-      "Install, configure, and use accept-md to serve Markdown from any Next.js page.",
+      "Install, configure, and use accept-md to serve Markdown from any Next.js or SvelteKit page.",
     url: `${siteUrl}/docs`,
   },
   alternates: {

@@ -13,33 +13,33 @@ const features: {
   icon: LucideIcon;
 }[] = [
   {
-    title: "AI crawlers & LLM ingestion",
+    title: "AI & LLM ready",
     description:
-      "Expose your content as Markdown for indexing and LLM pipelines without changing your app.",
+      "Feed clean Markdown to crawlers, RAG pipelines, and LLM agents — no scraping required.",
     icon: Bot,
   },
   {
-    title: "Documentation exports",
+    title: "Docs export",
     description:
-      "One command to get Markdown from docs sites for offline use or migration.",
+      "Let users download any page as Markdown for offline reading, migration, or archival.",
     icon: FileText,
   },
   {
     title: "Content syndication",
     description:
-      "Reuse the same pages in other systems, newsletters, or tools that consume Markdown.",
+      "Republish the same pages to newsletters, CMSs, or any tool that speaks Markdown.",
     icon: Share2,
   },
   {
-    title: "SEO & tooling",
+    title: "SEO & auditing",
     description:
-      "Provide alternate representations for analysis, audits, and content portability.",
+      "Expose a structured, text-only representation for analysis, accessibility audits, and portability.",
     icon: Search,
   },
   {
     title: "Zero page changes",
     description:
-      "Middleware intercepts requests; your components stay HTML. No Puppeteer, no custom server.",
+      "Middleware handles everything. Your components stay untouched — no Puppeteer, no custom server.",
     icon: Zap,
   },
 ];
@@ -48,38 +48,31 @@ export function Features() {
   return (
     <section
       id="features"
-      className="scroll-mt-20 border-t border-ink-800/80 bg-ink-900/20 px-4 py-section sm:px-6 lg:px-8"
+      className="scroll-mt-20 border-t border-white/5 px-4 py-section sm:px-6 lg:px-8"
     >
       <div className="mx-auto max-w-6xl">
         <p className="section-label">Features</p>
-        <h2 className="mt-3 font-display text-4xl tracking-tight text-white sm:text-5xl md:text-6xl">
-          Built for how you ship
+        <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-5xl">
+          Every use case, one header
         </h2>
-        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-300">
-          Use cases that just work with your existing Next.js or SvelteKit setup
-          on Vercel.
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-400">
+          Drop into any Next.js or SvelteKit project. Works on Vercel out of the box.
         </p>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, index) => {
+        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => {
             const Icon = f.icon;
             return (
               <div
                 key={f.title}
-                className="group card-hover rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-950/95 to-ink-900/60 p-6 backdrop-blur-sm transition-all duration-500 hover:border-brand-500/40 hover:from-ink-900/70 hover:to-ink-950/90 hover:shadow-xl"
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
+                className="card-hover group rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 transition-colors duration-200 hover:bg-white/[0.04]"
               >
-                <div className="relative">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-ink-700/50 bg-gradient-to-br from-ink-900/80 to-ink-950/80 text-brand-400 shadow-sm transition-all duration-300 group-hover:border-brand-500/50 group-hover:bg-gradient-to-br group-hover:from-brand-500/20 group-hover:to-brand-600/10 group-hover:shadow-md group-hover:shadow-brand-500/10">
-                    <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                  </div>
-                  <div className="absolute -inset-1 rounded-xl bg-brand-500/0 blur transition-all duration-300 group-hover:bg-brand-500/10"></div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-ink-400 transition-colors duration-200 group-hover:border-white/20 group-hover:text-ink-300">
+                  <Icon className="h-5 w-5 animate-icon-float" strokeWidth={1.5} />
                 </div>
-                <h3 className="mt-5 font-display text-xl text-white transition-colors group-hover:text-brand-300 sm:text-2xl">
+                <h3 className="mt-6 text-lg font-semibold text-white">
                   {f.title}
                 </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-ink-300 transition-colors group-hover:text-ink-200">
+                <p className="mt-3 text-sm leading-relaxed text-ink-400">
                   {f.description}
                 </p>
               </div>
