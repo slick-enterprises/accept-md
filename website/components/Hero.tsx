@@ -14,20 +14,21 @@ export function Hero() {
       
       <div className="relative mx-auto max-w-4xl text-center">
         <p className="section-label animate-fade-in opacity-0">
-          Next.js → Markdown
+          Next.js & SvelteKit → Markdown
         </p>
         <h1 className="mt-5 animate-slide-up font-display text-4xl tracking-tight text-white opacity-0 sm:text-5xl md:text-6xl lg:text-7xl [animation-delay:0.08s] [animation-fill-mode:forwards]">
           Serve Markdown from{" "}
           <br className="hidden sm:block" />
-          <span className="gradient-text">any Next.js page</span>
+          <span className="gradient-text">any Next.js or SvelteKit page</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl animate-slide-up text-lg leading-relaxed text-ink-300 opacity-0 sm:text-xl [animation-delay:0.16s] [animation-fill-mode:forwards]">
           When clients send{" "}
           <code className="rounded-md border border-ink-700/50 bg-ink-900/60 px-2.5 py-1 font-mono text-sm text-brand-300 shadow-sm backdrop-blur-sm transition-colors hover:border-brand-500/30 hover:bg-ink-900/80">
             Accept: text/markdown
           </code>
-          , return clean Markdown. No changes to your pages. Works with App
-          Router, Pages Router, SSG, SSR, and ISR.
+          , return clean Markdown. No changes to your pages. Works with Next.js
+          App Router, Pages Router, SSG, SSR, ISR, and SvelteKit routes — and
+          it runs perfectly on Vercel (no custom server required).
         </p>
         <div className="mt-10 flex animate-slide-up flex-col items-center justify-center gap-4 opacity-0 sm:flex-row [animation-delay:0.24s] [animation-fill-mode:forwards]">
           <Link

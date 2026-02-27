@@ -56,7 +56,8 @@ export function Features() {
           Built for how you ship
         </h2>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-300">
-          Use cases that just work with your existing Next.js setup.
+          Use cases that just work with your existing Next.js or SvelteKit setup
+          on Vercel.
         </p>
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, index) => {

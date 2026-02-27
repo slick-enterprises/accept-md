@@ -9,7 +9,7 @@ export default function DocsPage() {
         Get started
       </h1>
       <p className="mt-4 text-lg text-ink-400">
-        Get accept-md running in your Next.js project in minutes.
+        Get accept-md running in your Next.js or SvelteKit project in minutes.
       </p>
 
       <section className="mt-12">
@@ -17,7 +17,7 @@ export default function DocsPage() {
           Quick start
         </h2>
         <p className="mt-2 text-ink-300">
-          From your Next.js project root, run:
+          From your Next.js or SvelteKit project root, run:
         </p>
         <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
           npx accept-md init
@@ -39,15 +39,15 @@ export default function DocsPage() {
           root, run:
         </p>
         <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
-          npx --yes accept-md@canary init
+          npx accept-md init
         </pre>
         <p className="mt-4 text-ink-400">
           This detects your <code>routes/</code> or <code>src/routes/</code>{" "}
           directory and generates{" "}
           <code>src/routes/api/accept-md/[...path]/+server.js</code> (or{" "}
-          <code>.ts</code>) plus a shared <code>accept-md.config.js</code>. The{" "}
-          <code>@canary</code> tag gives you the latest SvelteKit-aware
-          runtime.
+          <code>.ts</code>) plus a shared <code>accept-md.config.js</code>, and
+          wires up <code>src/hooks.server.ts</code> /{" "}
+          <code>src/hooks.server.js</code>. It works out of the box on Vercel.
         </p>
       </section>
 
