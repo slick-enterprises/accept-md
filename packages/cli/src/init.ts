@@ -12,6 +12,7 @@ import {
   APP_ROUTE_HANDLER_TEMPLATE,
   PAGES_API_HANDLER_TEMPLATE,
   SVELTEKIT_ROUTE_HANDLER_TEMPLATE,
+  SVELTEKIT_HOOKS_TEMPLATE,
 } from 'accept-md-runtime';
 
 const MARKDOWN_MARKER = 'accept-md';
@@ -383,7 +384,7 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
 /** When writing .ts files, add type annotations so strict type-check passes. Leaves .js content unchanged. */
 function forTypeScript(
   content: string,
-  kind: 'app-route' | 'pages-handler' | 'middleware' | 'wrapper',
+  kind: 'app-route' | 'pages-handler' | 'middleware' | 'wrapper' | 'sveltekit-hook',
   ext: string
 ): string {
   if (ext !== 'ts') return content;
@@ -430,6 +431,18 @@ function forTypeScript(
     }
     return noJsdoc;
   }
+  if (kind === 'sveltekit-hook') {
+    // Convert JS JSDoc-based hook to typed Handle hook for SvelteKit
+    return content
+      .replace(
+        "/** @type { import('@sveltejs/kit').Handle } */\n",
+        "import type { Handle } from '@sveltejs/kit';\n"
+      )
+      .replace(
+        'export const handle = async ({ event, resolve }) => {',
+        'export const handle: Handle = async ({ event, resolve }) => {'
+      );
+  }
   return content;
 }
 
@@ -472,6 +485,53 @@ export async function middleware(request) {
   }
   return userMiddleware(request);
 }
+`;
+  const userPath = existingPath.replace(/\.(ts|js)$/, '.user.$1');
+  writeFileSync(join(projectRoot, userPath), content);
+  return wrapper;
+}
+
+function getSvelteKitHooksWithExisting(existingPath: string, projectRoot: string): string {
+  const content = readFileSync(join(projectRoot, existingPath), 'utf-8');
+  if (content.includes(MARKDOWN_MARKER)) return SVELTEKIT_HOOKS_TEMPLATE;
+
+  // Import without extension - SvelteKit/TS will resolve .ts/.js at runtime
+  const userImportPath = './hooks.server.user';
+
+  const wrapper = `// Wrapper: accept-md runs first, then your SvelteKit handle
+/** @type { import('@sveltejs/kit').Handle } */
+export const handle = async ({ event, resolve }) => {
+  const url = new URL(event.request.url);
+
+  // Don't rewrite the handler itself to avoid loops
+  if (url.pathname.startsWith('/api/accept-md')) {
+    const mod = await import('${userImportPath}');
+    const userHandle = mod.handle ?? mod.default;
+    if (!userHandle) {
+      throw new Error('hooks.server.user must export either a named "handle" function or a default export');
+    }
+    return userHandle({ event, resolve });
+  }
+
+  const accept = event.request.headers.get('accept') || '';
+
+  if (/\\btext\\/markdown\\b/i.test(accept)) {
+    const markdownUrl = new URL(\`/api/accept-md\${url.pathname}\`, url.origin);
+    markdownUrl.searchParams.set('path', url.pathname);
+
+    return await fetch(markdownUrl.toString(), {
+      method: 'GET',
+      headers: event.request.headers,
+    });
+  }
+
+  const mod = await import('${userImportPath}');
+  const userHandle = mod.handle ?? mod.default;
+  if (!userHandle) {
+    throw new Error('hooks.server.user must export either a named "handle" function or a default export');
+  }
+  return userHandle({ event, resolve });
+};
 `;
   const userPath = existingPath.replace(/\.(ts|js)$/, '.user.$1');
   writeFileSync(join(projectRoot, userPath), content);
@@ -530,6 +590,26 @@ async function runInitSvelteKit(
   const handlerContent = SVELTEKIT_ROUTE_HANDLER_TEMPLATE.replace(/\\\\/g, '\\');
   writeFileSync(handlerPath, handlerContent);
   messages.push(`Wrote ${join(routesDir, 'api', 'accept-md', '[...path]', `+server.${routeExt}`)}.`);
+
+  // Create or wrap src/hooks.server.{js,ts} so Accept: text/markdown rewrites go to the handler
+  const hooksExt = detection.hasTypeScript ? 'ts' : 'js';
+  const hooksPathRel = `src/hooks.server.${hooksExt}`;
+  const hooksPathAbs = join(projectRoot, hooksPathRel);
+  let hooksContent: string;
+  if (existsSync(hooksPathAbs)) {
+    hooksContent = getSvelteKitHooksWithExisting(hooksPathRel, projectRoot);
+    if (hooksContent.includes('hooks.server.user')) {
+      const userPath = hooksPathRel.replace(/\.(ts|js)$/, '.user.$1');
+      messages.push(`Existing hooks.server backed up to ${userPath} – markdown runs first.`);
+    }
+  } else {
+    hooksContent = SVELTEKIT_HOOKS_TEMPLATE;
+  }
+  const hooksOutputExt = hooksPathRel.match(/\.(ts|js)$/)?.[1] ?? 'js';
+  hooksContent = forTypeScript(hooksContent, 'sveltekit-hook', hooksOutputExt);
+  mkdirSync(join(projectRoot, 'src'), { recursive: true });
+  writeFileSync(hooksPathAbs, hooksContent);
+  messages.push(`Wrote ${hooksPathRel}.`);
 
   // Write accept-md.config.js if it does not exist (shared config shape with Next.js)
   const configPath = join(projectRoot, 'accept-md.config.js');

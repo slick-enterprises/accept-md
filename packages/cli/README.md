@@ -1,6 +1,6 @@
 # accept-md
 
-CLI for [accept-md](https://github.com/slick-enterprises/accept-md): scaffold middleware and a markdown handler in your Next.js app so that requests with `Accept: text/markdown` get a markdown version of the page.
+CLI for [accept-md](https://github.com/slick-enterprises/accept-md): scaffold middleware/hooks and a markdown handler in your Next.js or SvelteKit app so that requests with `Accept: text/markdown` get a markdown version of the page.
 
 ## Installation
 
@@ -29,12 +29,17 @@ pnpm add -D accept-md
 
 ### `accept-md init [path]`
 
-Scans your Next.js project, detects App Router vs Pages Router and middleware location, and:
+Scans your project, detects Next.js (App Router vs Pages Router) or SvelteKit, and:
 
-- Adds rewrites to `next.config.js/ts` (preferred) or creates/updates middleware to rewrite `Accept: text/markdown` to the handler
-- Adds the handler at `app/api/accept-md/route.ts` or `route.js` (App) or `pages/api/accept-md/index.ts` or `index.js` (Pages), depending on whether the project has TypeScript
-- Creates `accept-md.config.js`
-- Adds `accept-md-runtime` to dependencies
+- For **Next.js**:
+  - Adds rewrites to `next.config.js/ts` (preferred) or creates/updates middleware to rewrite `Accept: text/markdown` to the handler
+  - Adds the handler at `app/api/accept-md/route.ts` or `route.js` (App) or `pages/api/accept-md/index.ts` or `index.js` (Pages), depending on whether the project has TypeScript
+- For **SvelteKit**:
+  - Adds a route handler at `src/routes/api/accept-md/[...path]/+server.ts` or `+server.js` (or under `routes/` if you don't use `src/`)
+  - Creates or wraps `src/hooks.server.ts` / `src/hooks.server.js` so `Accept: text/markdown` requests are routed to the handler
+- For all frameworks:
+  - Creates `accept-md.config.js`
+  - Adds `accept-md-runtime` to dependencies
 
 **Note:** Rewrites in `next.config` are preferred over middleware for better compatibility with future Next.js versions. Middleware is still supported for backward compatibility.
 

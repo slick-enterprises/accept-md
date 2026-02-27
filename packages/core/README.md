@@ -1,6 +1,6 @@
 # @accept-md/core
 
-Core utilities for the [accept-md](https://github.com/slick-enterprises/accept-md) ecosystem: Next.js route scanning, config types, and project detection. Used by the **accept-md** CLI and tooling.
+Core utilities for the [accept-md](https://github.com/slick-enterprises/accept-md) ecosystem: Next.js route scanning, config types, and project detection (including SvelteKit detection). Used by the **accept-md** CLI and tooling.
 
 ## Installation
 

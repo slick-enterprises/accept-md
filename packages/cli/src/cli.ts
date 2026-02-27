@@ -46,6 +46,11 @@ async function gatherInitOverrides(projectRoot: string, initial: InitOverrides):
   if (hasAnyFlag || !process.stdin.isTTY) return initial;
 
   const detection = detectProject(projectRoot);
+  const isSvelteKit =
+    detection.framework === 'sveltekit' || (!!detection.isSvelteKit && !detection.isNext);
+  // For SvelteKit, init does not need app/pages/middleware prompts; use defaults.
+  if (isSvelteKit) return initial;
+
   const defaultRoutesDir =
     detection.routerType === 'app' ? (detection.appDir ?? 'app') : (detection.pagesDir ?? 'pages');
   const routesUnderSrc = (detection.appDir ?? detection.pagesDir ?? '').startsWith('src/');

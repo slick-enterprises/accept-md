@@ -1,6 +1,6 @@
 # accept-md
 
-**Serve clean Markdown representations of any Next.js page** when clients request `Accept: text/markdown`. No changes to your existing pages; works with App Router, Pages Router, SSG, SSR, and ISR.
+**Serve clean Markdown representations of any Next.js or SvelteKit page** when clients request `Accept: text/markdown`. No changes to your existing pages; works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit’s file-based routing.
 
 ## Use cases
 
@@ -12,7 +12,7 @@
 
 ## How it works
 
-1. **Rewrites in `next.config`** (preferred) or **middleware** intercept requests with `Accept: text/markdown`.
+1. **Rewrites in `next.config`** (preferred) or **middleware** intercept requests with `Accept: text/markdown` in Next.js; in SvelteKit, a `hooks.server` handle performs the same rewrite.
 2. The request is **rewritten** to an internal handler with the original path.
 3. The handler **fetches the same URL** as HTML (your app renders it once), then converts HTML → Markdown (strip nav/footer, preserve headings, links, images, tables).
 4. The **markdown response** is returned and can be cached like any other response.
@@ -122,6 +122,7 @@ This will:
   - Add the handler at `app/api/accept-md/route.ts` or `route.js` (or under `src/`; App Router), or `pages/api/accept-md/index.ts` or `index.js` (Pages Router)
 - For **SvelteKit**:
   - Add a route handler at `src/routes/api/accept-md/[...path]/+server.ts` or `+server.js` (or under `routes/` if you don't use `src/`)
+  - Generate or wrap `src/hooks.server.ts` / `src/hooks.server.js` so requests with `Accept: text/markdown` are rewritten to the handler
 - For **all frameworks**:
   - Create `accept-md.config.js` if it doesn’t exist
   - Add `accept-md-runtime` to your dependencies
@@ -249,8 +250,7 @@ Checks version compatibility between the CLI and installed `accept-md-runtime` p
 
 accept-md uses exact version matching between the CLI and `accept-md-runtime` to ensure compatibility. The CLI automatically:
 
-- Fetches the latest version from npm registry
-- Installs/updates `accept-md-runtime` to match the CLI version exactly
+- Installs/updates `accept-md-runtime` to match the **running CLI version** exactly
 - Warns if versions don't match
 
 **Best practices:**
@@ -345,8 +345,7 @@ The runtime does not pre-generate markdown at build time; it generates on first 
 
 accept-md uses exact version matching between the CLI and `accept-md-runtime` to ensure compatibility. The CLI automatically:
 
-- Fetches the latest version from npm registry
-- Installs/updates `accept-md-runtime` to match the CLI version exactly
+- Installs/updates `accept-md-runtime` to match the **running CLI version** exactly
 - Warns if versions don't match
 
 **Best practices:**
