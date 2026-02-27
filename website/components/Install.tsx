@@ -13,8 +13,9 @@ export function Install() {
           One command to get started
         </h2>
         <p className="mt-4 text-lg leading-relaxed text-ink-300">
-          From your Next.js project root. Init detects App vs Pages Router and
-          sets up middleware and handler.
+          From your Next.js or SvelteKit project root. Init detects your
+          framework and router, then sets up rewrites or hooks plus the handler
+          — ready to deploy on Vercel.
         </p>
         <div className="mt-8 overflow-hidden rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-950/95 to-ink-900/60 shadow-xl transition-all duration-500 hover:border-brand-500/30 hover:shadow-2xl">
           <div className="flex items-center gap-2 border-b border-ink-800/60 bg-gradient-to-r from-ink-900/90 to-ink-900/70 px-4 py-3.5 text-sm text-ink-400 backdrop-blur-sm">
