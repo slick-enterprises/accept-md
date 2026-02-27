@@ -1,21 +1,21 @@
 const steps = [
   {
-    step: 1,
-    title: "Middleware intercepts",
+    step: "01",
+    title: "Intercept",
     detail:
-      "Requests with Accept: text/markdown are rewritten to an internal handler.",
+      "Middleware detects Accept: text/markdown and rewrites the request to an internal handler.",
   },
   {
-    step: 2,
-    title: "Same URL, HTML first",
+    step: "02",
+    title: "Render & convert",
     detail:
-      "The handler fetches your page as HTML (your app renders once), then converts HTML → Markdown.",
+      "The handler fetches the page as HTML — your app renders once — then converts it to Markdown.",
   },
   {
-    step: 3,
-    title: "Clean Markdown out",
+    step: "03",
+    title: "Return clean output",
     detail:
-      "Nav/footer stripped, headings/links/images/tables preserved. Response can be cached.",
+      "Chrome, boilerplate, and nav are stripped. Headings, links, images, and tables stay intact. Responses are cacheable.",
   },
 ];
 
@@ -23,48 +23,30 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-20 border-t border-ink-800/80 px-4 py-section sm:px-6 lg:px-8"
+      className="scroll-mt-20 border-t border-white/5 px-4 py-section sm:px-6 lg:px-8"
     >
       <div className="mx-auto max-w-6xl">
         <p className="section-label">How it works</p>
-        <h2 className="mt-3 font-display text-4xl tracking-tight text-white sm:text-5xl md:text-6xl">
-          No custom server, no edits
+        <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-5xl">
+          Three steps, zero page edits
         </h2>
-        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-300">
-          Your page components stay untouched. In Next.js, rewrites/middleware
-          handle the routing; in SvelteKit, a <code>hooks.server</code> handle
-          does the same — all working seamlessly on Vercel.
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-400">
+          Your components stay untouched. Next.js middleware or SvelteKit hooks
+          handle the routing — deploys to Vercel with no custom server.
         </p>
-        <div className="mt-14 flex flex-col gap-6 md:flex-row md:items-stretch md:gap-6">
-          {steps.map((s, index) => (
+        <div className="mt-16 grid gap-8 md:grid-cols-3">
+          {steps.map((s) => (
             <div
               key={s.step}
-              className="group relative flex flex-1 flex-col rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-950/95 to-ink-900/60 p-6 backdrop-blur-sm transition-all duration-500 hover:border-brand-500/40 hover:from-ink-900/70 hover:to-ink-950/90 hover:shadow-xl md:p-8"
+              className="card-hover group rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 transition-colors duration-200 hover:bg-white/[0.04]"
             >
-              {/* Connecting line for desktop - perfectly aligned with step badge center */}
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute -right-[18px] top-0 h-full w-[18px] pointer-events-none overflow-visible z-0">
-                  {/* Main horizontal line - aligned with badge center (p-8 = 32px padding + 24px to badge center = 56px) */}
-                  <div className="absolute left-0 top-[56px] h-[1px] w-full bg-gradient-to-r from-brand-500/70 via-brand-500/60 to-brand-500/40"></div>
-                  {/* Arrow head - perfectly centered on the line */}
-                  <div className="absolute left-full top-[55.5px] -translate-y-1/2 w-0 h-0 border-t-[3.5px] border-t-transparent border-b-[3.5px] border-b-transparent border-l-[5px] border-l-brand-500/70"></div>
-                  {/* Subtle glow effect for depth */}
-                  <div className="absolute left-0 top-[56px] h-[1px] w-full bg-brand-500/30 blur-[2px]"></div>
-                  {/* Connecting dot at the start */}
-                  <div className="absolute left-0 top-[55.5px] -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-brand-500/60"></div>
-                </div>
-              )}
-              
-              <div className="relative z-10">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-brand-500/40 bg-gradient-to-br from-brand-500/15 to-brand-600/5 font-mono text-base font-bold text-brand-300 shadow-sm transition-all duration-300 group-hover:border-brand-500/60 group-hover:from-brand-500/25 group-hover:to-brand-600/10 group-hover:shadow-md group-hover:shadow-brand-500/20">
-                  {s.step}
-                </span>
-                <div className="absolute -inset-1 rounded-xl bg-brand-500/0 blur transition-all duration-300 group-hover:bg-brand-500/10"></div>
-              </div>
-              <h3 className="mt-6 font-display text-xl text-white transition-colors group-hover:text-brand-300 sm:text-2xl">
+              <span className="text-xs font-medium uppercase tracking-wider text-ink-500">
+                {s.step}
+              </span>
+              <h3 className="mt-6 text-lg font-semibold text-white">
                 {s.title}
               </h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-300 transition-colors group-hover:text-ink-200">
+              <p className="mt-3 text-sm leading-relaxed text-ink-400">
                 {s.detail}
               </p>
             </div>

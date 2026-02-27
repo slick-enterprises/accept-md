@@ -58,8 +58,8 @@ const config: Config = {
         },
       },
       spacing: {
-        "section": "7rem",
-        "section-sm": "5rem",
+        "section": "8rem",
+        "section-sm": "6rem",
       },
       animation: {
         "fade-in": "fade-in 0.5s ease-out forwards",
@@ -67,6 +67,8 @@ const config: Config = {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
+        "icon-float": "icon-float 4s ease-in-out infinite",
+        "icon-breathe": "icon-breathe 3s ease-in-out infinite",
       },
       keyframes: {
         "fade-in": {
@@ -88,6 +90,14 @@ const config: Config = {
         "shimmer": {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
+        },
+        "icon-float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-3px)" },
+        },
+        "icon-breathe": {
+          "0%, 100%": { opacity: "0.9" },
+          "50%": { opacity: "1" },
         },
       },
       backgroundImage: {

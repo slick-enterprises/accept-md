@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0c0c0e",
+  themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
 };
@@ -27,13 +27,14 @@ const siteUrl = "https://accept.md";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "accept-md | Serve Markdown from Any Next.js Page",
+    default: "accept-md | Serve Markdown from Any Next.js or SvelteKit Page",
     template: "%s | accept-md",
   },
   description:
-    "Serve clean Markdown representations of any Next.js page when clients request Accept: text/markdown. No changes to your pages. Works with App Router, Pages Router, SSG, SSR, and ISR. Perfect for AI crawlers, docs exports, and content syndication.",
+    "Return clean Markdown from any Next.js or SvelteKit route via Accept: text/markdown. Zero page changes. Works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit — ideal for AI crawlers, docs export, and content syndication.",
   keywords: [
     "next.js",
+    "sveltekit",
     "markdown",
     "middleware",
     "accept-header",
@@ -43,6 +44,7 @@ export const metadata: Metadata = {
     "LLM",
     "content syndication",
     "documentation export",
+    "vercel",
   ],
   authors: [{ name: "accept-md", url: "https://github.com/slick-enterprises/accept-md" }],
   creator: "accept-md",
@@ -57,15 +59,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "accept-md",
-    title: "accept-md | Serve Markdown from Any Next.js Page",
+    title: "accept-md | Markdown from Any Next.js or SvelteKit Page",
     description:
-      "Serve clean Markdown representations of any Next.js page via Accept: text/markdown. Zero changes to your pages. Works with App Router, Pages Router, SSG, SSR, ISR.",
+      "Return clean Markdown from any Next.js or SvelteKit route via Accept: text/markdown. Zero page changes. App Router, Pages Router, SSG, SSR, ISR.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "accept-md | Serve Markdown from Any Next.js Page",
+    title: "accept-md | Markdown from Any Next.js or SvelteKit Page",
     description:
-      "Serve Markdown from any Next.js page via Accept: text/markdown. No code changes. AI crawlers, docs export, content syndication.",
+      "Return Markdown from any Next.js or SvelteKit page via Accept: text/markdown. Zero code changes. Built for AI crawlers, docs export, and content syndication.",
   },
   robots: {
     index: true,
@@ -88,7 +90,7 @@ const softwareApplicationSchema = {
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Any",
   description:
-    "Serve clean Markdown representations of any Next.js page when clients request Accept: text/markdown. No changes to your existing pages; works with App Router, Pages Router, SSG, SSR, and ISR.",
+    "Return clean Markdown from any Next.js or SvelteKit route when clients send Accept: text/markdown. Zero page changes. Works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit.",
   url: siteUrl,
   author: {
     "@type": "Organization",
@@ -111,7 +113,7 @@ const organizationSchema = {
   url: siteUrl,
   logo: `${siteUrl}/logo.png`,
   description:
-    "Open-source tool to serve Markdown from any Next.js page via Accept: text/markdown header. Perfect for AI crawlers, documentation exports, and content syndication.",
+    "Open-source middleware that serves Markdown from any Next.js or SvelteKit page via Accept: text/markdown. Built for AI crawlers, docs export, and content syndication.",
   sameAs: [
     "https://github.com/slick-enterprises/accept-md",
   ],
@@ -130,7 +132,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <script
@@ -142,7 +144,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
-      <body className="min-h-screen font-sans antialiased bg-ink-950 text-ink-50 bg-grid relative z-10">
+      <body className="min-h-screen font-sans antialiased bg-[#0a0a0a] text-ink-50 bg-grid relative z-10">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KHJV0Y5CRX"
           strategy="afterInteractive"

@@ -1,32 +1,31 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { CodeBlock } from "@/components/CodeBlock";
 
 export default function DocsPage() {
   return (
-    <article className="prose prose-invert max-w-none prose-p:text-ink-300 prose-p:leading-relaxed prose-headings:text-white prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-400 prose-a:no-underline hover:prose-a:text-brand-300 prose-code:rounded-md prose-code:border prose-code:border-ink-700/50 prose-code:bg-ink-900/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-code:text-brand-300 prose-code:font-mono prose-code:text-sm prose-pre:bg-gradient-to-br prose-pre:from-ink-900/90 prose-pre:to-ink-950/80 prose-pre:border prose-pre:border-ink-800/60 prose-pre:rounded-card-lg prose-pre:shadow-lg prose-strong:text-white prose-ul:text-ink-300 prose-ol:text-ink-300 prose-li:text-ink-300 prose-li:leading-relaxed prose-blockquote:border-brand-500/30 prose-blockquote:bg-ink-900/30 prose-blockquote:text-ink-300 prose-blockquote:rounded-lg prose-blockquote:pl-4 prose-blockquote:py-2">
+    <article className="prose prose-invert max-w-none prose-p:text-ink-300 prose-p:leading-relaxed prose-headings:text-white prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-400 prose-a:no-underline hover:prose-a:text-brand-300 prose-code:rounded prose-code:border prose-code:border-white/10 prose-code:bg-white/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-code:text-sm prose-code:text-ink-300 prose-code:before:content-none prose-code:after:content-none prose-pre_[code]:border-0 prose-pre_[code]:bg-transparent prose-pre_[code]:p-0 prose-strong:text-white prose-ul:text-ink-300 prose-ol:text-ink-300 prose-li:text-ink-300 prose-li:leading-relaxed prose-blockquote:border-brand-500/30 prose-blockquote:bg-ink-900/30 prose-blockquote:text-ink-300 prose-blockquote:rounded-lg prose-blockquote:pl-4 prose-blockquote:py-2">
       <p className="section-label">Documentation</p>
       <h1 className="mt-3 font-display text-3xl font-bold text-white md:text-4xl">
-        Get started
+        Quick Start
       </h1>
       <p className="mt-4 text-lg text-ink-400">
-        Get accept-md running in your Next.js or SvelteKit project in minutes.
+        Add accept-md to a Next.js or SvelteKit project in under two minutes.
       </p>
 
       <section className="mt-12">
         <h2 className="font-display text-xl font-semibold text-white">
-          Quick start
+          Install
         </h2>
         <p className="mt-2 text-ink-300">
-          From your Next.js or SvelteKit project root, run:
+          Run from your project root:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
+        <CodeBlock language="bash" title="Terminal" className="mt-4">
           npx accept-md init
-        </pre>
+        </CodeBlock>
         <p className="mt-4 text-ink-400">
-          This detects App Router vs Pages Router, creates or updates middleware,
-          adds the handler route, and creates{" "}
-          <code>accept-md.config.js</code>. Then install dependencies and you’re
-          done.
+          The CLI detects your router, creates middleware, adds the handler route,
+          and writes <code>accept-md.config.js</code>. Install dependencies and
+          you&apos;re done.
         </p>
       </section>
 
@@ -35,19 +34,17 @@ export default function DocsPage() {
           SvelteKit support
         </h2>
         <p className="mt-2 text-ink-300">
-          accept-md also works with SvelteKit. From your SvelteKit project
-          root, run:
+          The same CLI works for SvelteKit. From your project root:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
+        <CodeBlock language="bash" title="Terminal" className="mt-4">
           npx accept-md init
-        </pre>
+        </CodeBlock>
         <p className="mt-4 text-ink-400">
-          This detects your <code>routes/</code> or <code>src/routes/</code>{" "}
-          directory and generates{" "}
+          The CLI detects <code>routes/</code> or <code>src/routes/</code>,
+          generates the handler at{" "}
           <code>src/routes/api/accept-md/[...path]/+server.js</code> (or{" "}
-          <code>.ts</code>) plus a shared <code>accept-md.config.js</code>, and
-          wires up <code>src/hooks.server.ts</code> /{" "}
-          <code>src/hooks.server.js</code>. It works out of the box on Vercel.
+          <code>.ts</code>), writes <code>accept-md.config.js</code>, and wires
+          up <code>src/hooks.server</code>. Works on Vercel out of the box.
         </p>
       </section>
 
@@ -56,16 +53,15 @@ export default function DocsPage() {
           Usage
         </h2>
         <p className="mt-2 text-ink-300">
-          Request any route with the Markdown accept header:
+          Request any route with the <code>Accept: text/markdown</code> header:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
+        <CodeBlock language="curl" title="Example requests" className="mt-4">
           {`curl -H "Accept: text/markdown" https://your-site.com/
 curl -H "Accept: text/markdown" https://your-site.com/about
 curl -H "Accept: text/markdown" https://your-site.com/posts/123`}
-        </pre>
+        </CodeBlock>
         <p className="mt-4 text-ink-400">
-          Normal requests still receive HTML; no performance impact for regular
-          users.
+          Standard requests still receive HTML. No performance impact for regular visitors.
         </p>
       </section>
 
@@ -76,7 +72,11 @@ curl -H "Accept: text/markdown" https://your-site.com/posts/123`}
         <p className="mt-2 text-ink-300">
           Edit <code>accept-md.config.js</code> in your project root:
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/90 to-ink-950/80 p-5 font-mono text-sm leading-relaxed text-ink-200 shadow-lg">
+        <CodeBlock
+          language="javascript"
+          title="accept-md.config.js"
+          className="mt-4"
+        >
           {`/** @type { import('accept-md-runtime').NextMarkdownConfig } */
 module.exports = {
   include: ['/**'],
@@ -86,27 +86,23 @@ module.exports = {
   cache: true,
   baseUrl: process.env.VERCEL_URL ? \`https://\${process.env.VERCEL_URL}\` : undefined,
 };`}
-        </pre>
+        </CodeBlock>
         <ul className="mt-4 list-inside list-disc space-y-1.5 text-ink-400">
           <li>
-            <strong className="text-ink-200">include</strong> – Glob patterns for
-            routes to include
+            <strong className="text-ink-200">include</strong> – Route glob patterns to serve as Markdown
           </li>
           <li>
-            <strong className="text-ink-200">exclude</strong> – Glob patterns to
-            exclude
+            <strong className="text-ink-200">exclude</strong> – Route glob patterns to skip
           </li>
           <li>
-            <strong className="text-ink-200">cleanSelectors</strong> – CSS
-            selectors removed before HTML→Markdown
+            <strong className="text-ink-200">cleanSelectors</strong> – CSS selectors stripped before conversion
           </li>
           <li>
-            <strong className="text-ink-200">cache</strong> – Enable in-memory
-            cache for markdown responses
+            <strong className="text-ink-200">cache</strong> – In-memory cache for Markdown responses
           </li>
           <li>
-            <strong className="text-ink-200">transformers</strong> –
-            Post-process markdown with <code>(md) =&gt; string</code>
+            <strong className="text-ink-200">transformers</strong> – Post-process
+            Markdown via <code>(md) =&gt; string</code>
           </li>
         </ul>
       </section>
@@ -131,7 +127,7 @@ module.exports = {
 
       <div className="mt-16 rounded-card-lg border border-ink-800/60 bg-gradient-to-br from-ink-900/50 to-ink-950/80 p-6 backdrop-blur-sm">
         <p className="text-ink-300 leading-relaxed">
-          For full details, examples, and contributing, see the{" "}
+          Full API reference, examples, and contribution guide on{" "}
           <a
             href="https://github.com/slick-enterprises/accept-md#readme"
             target="_blank"
@@ -144,9 +140,8 @@ module.exports = {
         </p>
         <Link
           href="/"
-          className="group mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
+          className="mt-4 inline-flex items-center text-sm font-medium text-brand-400 transition-colors hover:text-brand-300"
         >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Back to home
         </Link>
       </div>
