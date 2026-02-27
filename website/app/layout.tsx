@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-const jsonLd = {
+const softwareApplicationSchema = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   name: "accept-md",
@@ -104,6 +104,24 @@ const jsonLd = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "accept-md",
+  url: siteUrl,
+  logo: `${siteUrl}/logo.png`,
+  description:
+    "Open-source tool to serve Markdown from any Next.js page via Accept: text/markdown header. Perfect for AI crawlers, documentation exports, and content syndication.",
+  sameAs: [
+    "https://github.com/slick-enterprises/accept-md",
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "Technical Support",
+    url: "https://github.com/slick-enterprises/accept-md/issues",
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -117,10 +135,14 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
-      <body className="min-h-screen font-sans antialiased bg-ink-950 text-ink-50 bg-grid">
+      <body className="min-h-screen font-sans antialiased bg-ink-950 text-ink-50 bg-grid relative z-10">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KHJV0Y5CRX"
           strategy="afterInteractive"

@@ -6,7 +6,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { detectProject } from './detect.js';
-import { scanProject } from '@accept-md/core';
+import { scanProject, type ProjectDetection } from '@accept-md/core';
 import {
   MIDDLEWARE_TEMPLATE,
   APP_ROUTE_HANDLER_TEMPLATE,
@@ -36,13 +36,9 @@ async function fetchLatestVersionFromRegistry(packageName: string): Promise<stri
 
 /** Get the current CLI version to use for accept-md-runtime. */
 export async function getRuntimeVersion(): Promise<string> {
-  // Try fetching latest from npm registry first
-  const latestVersion = await fetchLatestVersionFromRegistry('accept-md');
-  if (latestVersion) {
-    return latestVersion; // Return exact version, no ^ prefix
-  }
-
-  // Fallback to local package.json version
+  // IMPORTANT: runtime must match the *running CLI* version.
+  // This keeps canary/pre-release flows correct (e.g. accept-md@4.0.6-canary.0 installs
+  // accept-md-runtime@4.0.6-canary.0, not whatever npm "latest" happens to be).
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -57,8 +53,14 @@ export async function getRuntimeVersion(): Promise<string> {
   } catch {
     // Fall through to default
   }
-  // Fallback: use current version (update this when publishing)
-  return '4.0.2';
+
+  // Last resort: fall back to the latest stable published version.
+  // This should be very rare (only if we cannot read our own package.json).
+  const latestVersion = await fetchLatestVersionFromRegistry('accept-md');
+  if (latestVersion) return latestVersion;
+
+  // Should never happen; returning an invalid version prevents silently pinning the wrong runtime.
+  return '0.0.0';
 }
 
 /**
@@ -484,7 +486,7 @@ export interface InitOverrides {
 
 async function runInitSvelteKit(
   projectRoot: string,
-  detection: any,
+  detection: ProjectDetection,
   messages: string[]
 ): Promise<{ ok: boolean; messages: string[] }> {
   messages.push('Detected SvelteKit project.');
@@ -633,9 +635,8 @@ export async function runInit(
   const messages: string[] = [];
   const detection = detectProject(projectRoot);
 
-  const framework = (detection as any).framework as string | undefined;
-  const isSvelteKitFlag = (detection as any).isSvelteKit as boolean | undefined;
-  const isSvelteKit = framework === 'sveltekit' || !!isSvelteKitFlag;
+  const isSvelteKit =
+    detection.framework === 'sveltekit' || (!!detection.isSvelteKit && !detection.isNext);
 
   // SvelteKit path: handle before enforcing Next.js-only checks.
   if (isSvelteKit && !detection.isNext) {

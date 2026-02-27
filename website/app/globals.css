@@ -16,48 +16,511 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
 }
 
-/* Subtle grid background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    rgba(139, 92, 246, 0.15) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Professional typography for headings - modern large & light style */
+h1, h2, h3, h4, h5, h6 {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+h1 {
+  font-size: clamp(3.25rem, 8vw, 6rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+
+h2 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+h3 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  font-weight: 400;
+}
+
+/* Enhanced body text readability */
+p {
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Better text rendering for all text */
+* {
+  text-rendering: optimizeLegibility;
+}
+
+/* Premium typography for display text */
+.font-display {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override font-weight for headings to keep them light (modern style) */
+h1.font-display,
+h2.font-display,
+h3.font-display,
+h4.font-display,
+h5.font-display,
+h6.font-display {
+  font-weight: 400 !important;
+}
+
+/* Enhanced grid background with subtle animation */
 .bg-grid {
   background-image: linear-gradient(
       to right,
-      rgba(255, 255, 255, 0.025) 1px,
+      rgba(139, 92, 246, 0.04) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.025) 1px,
+      rgba(139, 92, 246, 0.04) 1px,
       transparent 1px
     );
   background-size: 24px 24px;
+  position: relative;
+}
+
+.bg-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(139, 92, 246, 0.12) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.bg-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(139, 92, 246, 0.06) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
 }
 
 /* Section label — small caps, e.g. "Features // Developer first" */
 .section-label {
   @apply text-section-label font-medium uppercase tracking-widest text-ink-500;
+  position: relative;
+  display: inline-block;
+  letter-spacing: 0.15em;
 }
 
-/* Gradient text (accent) */
+.section-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(139, 92, 246, 0.4),
+    rgba(167, 139, 250, 0.3),
+    rgba(139, 92, 246, 0.4),
+    transparent
+  );
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+}
+
+/* Enhanced gradient text with better colors */
 .gradient-text {
-  background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 50%, #ddd6fe 100%);
+  background: linear-gradient(
+    135deg,
+    #a78bfa 0%,
+    #c4b5fd 25%,
+    #ddd6fe 50%,
+    #ede9fe 75%,
+    #f5f3ff 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(167, 139, 250, 0.3));
 }
 
-/* Code block / window chrome */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced code block / window chrome */
 .code-block {
   @apply rounded-card-lg border border-ink-800 bg-ink-900/90 font-mono text-sm leading-relaxed overflow-hidden;
+  position: relative;
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.1),
+    0 8px 16px -4px rgba(0, 0, 0, 0.5),
+    0 4px 8px -2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
 }
 
-/* Glow effect for primary CTAs */
+.code-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.08) 0%,
+    rgba(139, 92, 246, 0.03) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.code-block::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(139, 92, 246, 0.4),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Professional primary CTA button */
+.btn-primary {
+  position: relative;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.25),
+    0 4px 16px -4px rgba(139, 92, 246, 0.3),
+    0 8px 32px -4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover::after {
+  opacity: 1;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+  box-shadow: 
+    0 0 0 1px rgba(167, 139, 250, 0.4),
+    0 8px 24px -4px rgba(139, 92, 246, 0.5),
+    0 16px 48px -8px rgba(139, 92, 246, 0.4),
+    0 12px 32px -4px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.25),
+    0 4px 12px -4px rgba(139, 92, 246, 0.4),
+    0 8px 24px -4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Professional secondary CTA button */
+.btn-secondary {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(24, 24, 27, 0.9) 0%,
+    rgba(12, 12, 14, 0.98) 100%
+  );
+  border: 1px solid rgba(113, 113, 122, 0.3);
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.05),
+    0 4px 12px -4px rgba(0, 0, 0, 0.5),
+    0 2px 8px -2px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+}
+
+.btn-secondary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(167, 139, 250, 0.05) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.btn-secondary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.btn-secondary:hover::before,
+.btn-secondary:hover::after {
+  opacity: 1;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(39, 39, 42, 0.95) 0%,
+    rgba(24, 24, 27, 0.98) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.15),
+    0 8px 24px -4px rgba(139, 92, 246, 0.2),
+    0 12px 32px -4px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.1),
+    0 4px 12px -4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Legacy glow-border for backward compatibility */
 .glow-border {
-  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.25),
-    0 0 24px -4px rgba(139, 92, 246, 0.2);
+  @apply btn-primary;
 }
 
-.glow-border:hover {
-  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4),
-    0 0 32px -4px rgba(139, 92, 246, 0.3);
+/* Card hover effect */
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 0 0 1px rgba(139, 92, 246, 0.15),
+    0 12px 32px -8px rgba(139, 92, 246, 0.2),
+    0 16px 48px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Subtle pulse animation for icons */
+.icon-pulse {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* Smooth fade-in for content */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* Enhanced prose typography for blog posts - modern large & light style */
+.prose {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.prose h1 {
+  font-size: clamp(3rem, 7vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+  margin-top: 0;
+}
+
+.prose h2 {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.prose h3 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.15;
+  font-weight: 400;
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+
+.prose blockquote {
+  font-style: italic;
+  letter-spacing: 0.01em;
+  line-height: 1.7;
+  margin: 1.5em 0;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.prose strong {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.prose code {
+  font-feature-settings: normal;
+}
+
+/* Better spacing for prose content */
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose > h2 + *,
+.prose > h3 + * {
+  margin-top: 0.75em;
 }

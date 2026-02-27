@@ -9,7 +9,7 @@ pnpm add accept-md-runtime
 # or npm install accept-md-runtime
 ```
 
-**Peer dependency:** Next.js 12 or later.
+**Peer dependency:** Next.js 12 or later (optional; only needed for Next.js projects).
 
 ## Quick setup
 

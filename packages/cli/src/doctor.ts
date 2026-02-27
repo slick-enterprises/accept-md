@@ -10,18 +10,60 @@ import { getRuntimeVersion, checkRuntimeVersion } from './init.js';
 
 export async function runDoctor(projectRoot: string): Promise<DoctorReport> {
   const detected = detectProject(projectRoot);
-  const { routes } = scanProject(projectRoot, {
-    appDir: detected.appDir ?? undefined,
-    pagesDir: detected.pagesDir ?? undefined,
-  });
+  const isSvelteKit = detected.framework === 'sveltekit' || (!!detected.isSvelteKit && !detected.isNext);
   const conflicts: string[] = [];
   const issues: string[] = [];
   const suggestions: string[] = [];
+
+  // SvelteKit support: validate accept-md handler + config without running Next.js route scanning.
+  if (isSvelteKit) {
+    const routesDir = detected.svelteKitRoutesDir ?? (existsSync(join(projectRoot, 'src/routes')) ? 'src/routes' : 'routes');
+    const handlerDir = join(projectRoot, routesDir, 'api', 'accept-md', '[...path]');
+    const handlerFiles = ['+server.ts', '+server.js'];
+    if (!handlerFiles.some((f) => existsSync(join(handlerDir, f)))) {
+      issues.push('Markdown handler not found. Run `npx accept-md init`.');
+    } else {
+      suggestions.push(`Handler found: ${join(routesDir, 'api', 'accept-md', '[...path]')}/+server.(js|ts)`);
+    }
+
+    const configPath = join(projectRoot, 'accept-md.config.js');
+    if (!existsSync(configPath)) {
+      suggestions.push('No accept-md.config.js. Run init to create a default config.');
+    } else {
+      // Load config to ensure it parses; report basic guidance.
+      try {
+        loadConfig(projectRoot);
+        suggestions.push('Config: OK (accept-md.config.js)');
+      } catch {
+        issues.push('Could not load accept-md.config.js (parse error).');
+      }
+    }
+
+    // Check version compatibility between CLI and installed runtime.
+    try {
+      const cliVersion = await getRuntimeVersion();
+      const versionCheck = checkRuntimeVersion(projectRoot, cliVersion);
+      if (!versionCheck.compatible && versionCheck.installed) {
+        issues.push(versionCheck.message);
+      } else if (versionCheck.installed) {
+        suggestions.push(`Version compatibility: OK (CLI ${cliVersion}, runtime ${versionCheck.installed})`);
+      }
+    } catch {
+      suggestions.push('Could not verify version compatibility (network issue).');
+    }
+
+    return { detected, routes: [], conflicts, issues, suggestions };
+  }
 
   if (!detected.isNext) {
     issues.push('Not a Next.js project.');
     return { detected, routes: [], conflicts, issues, suggestions };
   }
+
+  const { routes } = scanProject(projectRoot, {
+    appDir: detected.appDir ?? undefined,
+    pagesDir: detected.pagesDir ?? undefined,
+  });
 
   if (!detected.routerType) {
     issues.push('No app/ or pages/ directory found.');
@@ -97,13 +139,16 @@ export function formatDoctorReport(report: DoctorReport): string {
   lines.push('--- accept-md doctor ---');
   lines.push('');
   lines.push('Detection:');
+  lines.push(`  Framework: ${report.detected.framework ?? 'unknown'}`);
   lines.push(`  Next.js: ${report.detected.isNext}`);
+  lines.push(`  SvelteKit: ${report.detected.isSvelteKit ? 'yes' : 'no'}`);
   lines.push(`  Router: ${report.detected.routerType ?? 'none'}`);
   lines.push(`  App dir: ${report.detected.hasAppDir} (${report.detected.appDir ?? 'n/a'})`);
   lines.push(`  Pages dir: ${report.detected.hasPagesDir} (${report.detected.pagesDir ?? 'n/a'})`);
   lines.push(`  Middleware: ${report.detected.middlewarePath ?? 'none'}`);
   lines.push(`  Rewrites: ${report.detected.hasRewriteConfig ? 'yes (preferred)' : 'no'}`);
   lines.push(`  Config: ${report.detected.configPath ?? 'none'}`);
+  lines.push(`  SvelteKit routes: ${report.detected.svelteKitRoutesDir ?? 'n/a'}`);
   lines.push('');
   
   // Version info will be in suggestions or issues

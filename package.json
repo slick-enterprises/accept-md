@@ -1,11 +1,11 @@
 {
   "name": "accept-md",
-  "version": "4.0.5",
+  "version": "4.0.6-canary.0",
   "private": true,
   "description": "Serve markdown representations of Next.js pages via Accept: text/markdown. Accept-md is a middleware that converts HTML pages to Markdown, which can be useful for SEO, API access, and other use cases.",
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter '!example-app-router' --filter '!example-pages-router' -r run build",
+    "build": "pnpm --filter '!example-app-router' --filter '!example-pages-router' --filter '!accept-md-example-sveltekit' -r run build",
     "test": "pnpm --filter '@accept-md/core' --filter 'accept-md-runtime' run test",
     "lint": "pnpm exec eslint \"packages/cli/src\" \"packages/core/src\" \"packages/middleware/src\" --max-warnings 0",
     "clean": "pnpm -r run clean; rm -rf node_modules",

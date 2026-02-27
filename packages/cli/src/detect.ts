@@ -21,21 +21,6 @@ function hasNextInPackage(pkgPath: string): boolean {
   }
 }
 
-function hasSvelteKitInPackage(pkgPath: string): boolean {
-  try {
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-    const deps = {
-      ...pkg.dependencies,
-      ...pkg.devDependencies,
-      ...pkg.optionalDependencies,
-      ...pkg.peerDependencies,
-    };
-    return typeof deps['@sveltejs/kit'] === 'string' || typeof deps['@sveltejs/kit'] === 'object';
-  } catch {
-    return false;
-  }
-}
-
 function findNextAppInWorkspace(projectRoot: string): string | undefined {
   const workspaceDirs = ['apps', 'packages'];
   for (const dir of workspaceDirs) {

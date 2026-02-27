@@ -63,8 +63,7 @@ Checks version compatibility between the CLI and installed `accept-md-runtime` p
 
 The CLI automatically ensures version compatibility:
 
-- Fetches latest version from npm registry when running `init`
-- Installs `accept-md-runtime` with exact version matching (no `^` or `~` ranges)
+- Installs `accept-md-runtime` with the **exact same version** as the running CLI (no `^` or `~` ranges)
 - Warns if installed runtime version doesn't match CLI version
 - The `doctor` command also reports version compatibility
 
