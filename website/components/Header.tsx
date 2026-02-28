@@ -41,7 +41,7 @@ export function Header() {
       <div className="flex flex-wrap items-center justify-center gap-2 border-b border-white/5 bg-ink-500/10 px-4 py-2 text-sm font-medium text-ink-300">
         <Zap className="h-4 w-4 shrink-0 text-amber-400" fill="currentColor" strokeWidth={0} aria-hidden />
         <span>
-          <span className="font-semibold text-white">v4.07.</span> now supports SvelteKit Projects
+          <span className="font-semibold text-white">v4.0.7</span> now supports SvelteKit Projects
         </span>
         <Link
           href="/docs"
