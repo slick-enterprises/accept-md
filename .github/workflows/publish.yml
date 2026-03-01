@@ -3,8 +3,8 @@
 #
 # How to publish: Bump version in packages/cli, packages/core, packages/middleware (and root),
 # commit, push, then either:
-#   1. Create a GitHub Release: Repo → Releases → Create new release → Choose tag v1.0.11 (create if needed) → Publish
-#   2. Or push a version tag: git tag v1.0.11 && git push origin v1.0.11
+#   1. Create a GitHub Release: Repo → Releases → Create new release → Choose tag v5.0.0 (create if needed) → Publish
+#   2. Or push a version tag: git tag v5.0.0 && git push origin v5.0.0
 #
 # Add this workflow as Trusted Publisher for each package on npm:
 #   Package → Settings → Trusted Publisher → GitHub Actions
