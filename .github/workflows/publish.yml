@@ -1,6 +1,8 @@
 # Publish workspace packages to npm using Trusted Publisher (OIDC).
 # No NPM_TOKEN needed — npm trusts this workflow.
 #
+# Stable releases (e.g. v4.0.7) publish to npm "latest". Canary tags (e.g. v4.0.7-canary.0) publish to "canary".
+#
 # How to publish: Bump version in packages/cli, packages/core, packages/middleware (and root),
 # commit, push, then either:
 #   1. Create a GitHub Release: Repo → Releases → Create new release → Choose tag v5.0.0 (create if needed) → Publish
