@@ -22,6 +22,7 @@ alwaysApply: false
 - Use `routeExt = detection.hasTypeScript ? 'ts' : 'js'` when writing the handler file. Do not hardcode `.ts` only.
 - Write the **template as-is** (no TypeScript-only additions). Doctor must accept both `route.ts` and `route.js` (and both `index.ts` and `index.js` for Pages).
 - **Next.js rewrite pattern**: Use catch-all `/:path*` in `next.config.js` rewrites (not complex regex like `/:path((?!api|_next).)*`). The complex regex doesn't match sub-routes reliably in Next.js. Exclusions for `/api` and `/_next` are handled in the handler code, not in the rewrite pattern.
+- **Rewrite destination**: Always use the query-param form `'/api/accept-md?path=:path*'`. The legacy slug form `'/api/accept-md/:path*'` requires a catch-all handler that the generator does not write and produces 404s (issue #16). The handler keeps a backward-compat fallback that reads the path suffix from `pathname`, but new configs must use the query-param form.
 
 ## Handler path exclusion logic
 
@@ -33,7 +34,7 @@ alwaysApply: false
   }
   ```
 - This prevents conflicts with Next.js internal routes and API routes.
-- The rewrite pattern uses catch-all `/:path*` to match all routes, then the handler filters out excluded paths.
+- The rewrite source pattern uses catch-all `/:path*` to match all routes; the destination is `/api/accept-md?path=:path*` so the original pathname is forwarded as a query parameter. The handler then filters out excluded paths.
 
 ## Do not
 

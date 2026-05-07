@@ -31,5 +31,5 @@ alwaysApply: false
 
 - **Rewrite pattern**: Use catch-all `/:path*` in `next.config.js` rewrites. Complex regex patterns like `/:path((?!api|_next).)*` don't match sub-routes reliably in Next.js.
 - **Exclusion handling**: Path exclusions for `/api` and `/_next` are handled in the handler code (returns 404), not in the rewrite pattern.
-- **Destination format**: App Router uses `/api/accept-md/:path*` (path parameter). Pages Router can use `/api/accept-md?path=:path*` (query string) for backward compatibility.
-- The `getNextConfigRewrite()` function in `packages/middleware/src/templates.ts` returns the correct rewrite configuration.
+- **Destination format**: Use the **query-param form** `'/api/accept-md?path=:path*'` for both App Router and Pages Router. The original pathname is passed via the `path` query string. The legacy path-slug form `'/api/accept-md/:path*'` is broken without a catch-all handler (issue #16) and must not be re-introduced — it is only kept in detection code for backward-compat with 5.0.0 projects.
+- The `getNextConfigRewrite()` function in `packages/middleware/src/templates.ts` returns the correct rewrite configuration. Do not edit it to use the path-slug form.

@@ -5,23 +5,48 @@
 import { htmlToMarkdown } from './markdown.js';
 import type { NextMarkdownConfig } from './types.js';
 
-function pathMatches(pathname: string, patterns: string[]): boolean {
+/**
+ * Match a normalized path's segments against a pattern's segments.
+ * - `*`  matches exactly one segment.
+ * - `**` matches zero or more segments (recursive).
+ * - Literal segments must match exactly.
+ *
+ * Implemented recursively so patterns like `**\/admin` only match paths whose
+ * tail is `admin` (not every path).
+ */
+function matchSegments(parts: string[], segs: string[]): boolean {
+  let pi = 0;
+  let si = 0;
+  while (si < segs.length) {
+    const seg = segs[si];
+    if (seg === '**') {
+      // Trailing ** consumes everything that's left.
+      if (si === segs.length - 1) return true;
+      // Otherwise, try every possible split of the remaining parts.
+      const rest = segs.slice(si + 1);
+      for (let k = pi; k <= parts.length; k++) {
+        if (matchSegments(parts.slice(k), rest)) return true;
+      }
+      return false;
+    }
+    if (pi >= parts.length) return false;
+    if (seg === '*' || seg === parts[pi]) {
+      pi++;
+      si++;
+      continue;
+    }
+    return false;
+  }
+  return pi === parts.length;
+}
+
+/** @internal Exported for tests. */
+export function pathMatches(pathname: string, patterns: string[]): boolean {
   const norm = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
   const parts = norm.split('/').filter(Boolean);
   for (const p of patterns) {
     const segs = p.split('/').filter(Boolean);
-    if (segs[0] === '**') return true;
-    let i = 0;
-    for (const seg of segs) {
-      if (seg === '**') return true;
-      if (i >= parts.length) break;
-      if (seg === '*' || seg === parts[i]) {
-        i++;
-        continue;
-      }
-      break;
-    }
-    if (i === segs.length && i === parts.length) return true;
+    if (matchSegments(parts, segs)) return true;
   }
   return false;
 }
@@ -89,6 +114,30 @@ function getByteSize(str: string): number {
   return new TextEncoder().encode(str).length;
 }
 
+const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
+const DEFAULT_MAX_CACHE_ENTRIES = 1000;
+
+/**
+ * Insert into the cache and evict the oldest entry (insertion order) if the
+ * Map has exceeded `maxEntries`. JavaScript's Map preserves insertion order,
+ * so the first key returned by `keys()` is the oldest.
+ */
+function setCacheEntry(
+  cache: Map<string, CacheEntry | string>,
+  key: string,
+  entry: CacheEntry,
+  maxEntries: number
+): void {
+  // If the key already exists, delete first so it re-inserts at the tail.
+  if (cache.has(key)) cache.delete(key);
+  cache.set(key, entry);
+  while (cache.size > maxEntries) {
+    const oldest = cache.keys().next().value;
+    if (oldest === undefined) break;
+    cache.delete(oldest);
+  }
+}
+
 /**
  * Fetch the page at baseUrl + pathname (as HTML), convert to markdown, optionally cache.
  */
@@ -99,17 +148,29 @@ export async function getMarkdownForPath(options: GetMarkdownOptions): Promise<s
     throw new Error(`Path excluded from markdown: ${normalizedPath}`);
   }
   const cacheKey = normalizedPath;
-  
+  const maxCacheEntries =
+    typeof config.maxCacheEntries === 'number' && config.maxCacheEntries > 0
+      ? config.maxCacheEntries
+      : DEFAULT_MAX_CACHE_ENTRIES;
+  const fetchTimeoutMs =
+    typeof config.fetchTimeoutMs === 'number' && config.fetchTimeoutMs >= 0
+      ? config.fetchTimeoutMs
+      : DEFAULT_FETCH_TIMEOUT_MS;
+
   // Check cache with expiration and build ID validation
   if (config.cache !== false && cache?.has(cacheKey)) {
     const cached = cache.get(cacheKey)!;
     const currentBuildId = typeof process !== 'undefined' ? process.env.BUILD_ID : undefined;
-    
-    // Backward compatibility: handle both CacheEntry and string (old format)
+
+    // Backward compatibility: handle both CacheEntry and string (old format).
+    // Old-format string entries are missing expiry/buildId so we re-derive
+    // them rather than trusting them indefinitely.
     let entry: CacheEntry;
     if (typeof cached === 'string') {
-      // Old format: just a string
-      return cached;
+      entry = { markdown: cached };
+      // Replace with new format so subsequent reads go through the normal
+      // expiration/build-ID checks.
+      cache.set(cacheKey, entry);
     } else {
       entry = cached as CacheEntry;
     }
@@ -160,7 +221,16 @@ export async function getMarkdownForPath(options: GetMarkdownOptions): Promise<s
       }
     }
     fetchHeaders.set('Accept', 'text/html');
-    return fetch(url, { headers: fetchHeaders });
+    // Apply a timeout so a slow upstream cannot hang the markdown response
+    // indefinitely. AbortSignal.timeout is supported in Node 18+ and modern
+    // runtimes; we feature-detect to stay compatible with older targets.
+    const init: RequestInit = { headers: fetchHeaders };
+    if (fetchTimeoutMs > 0 && typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
+      init.signal = (AbortSignal as unknown as { timeout: (ms: number) => AbortSignal }).timeout(
+        fetchTimeoutMs
+      );
+    }
+    return fetch(url, init);
   }
 
   let res: Response;
@@ -218,14 +288,15 @@ export async function getMarkdownForPath(options: GetMarkdownOptions): Promise<s
     htmlSize: config.debug ? htmlSize : undefined,
   });
   
-  // Store in cache with expiration and build ID
+  // Store in cache with expiration and build ID, evicting the oldest entry
+  // if we've exceeded the configured cap.
   if (config.cache !== false && cache) {
     const entry: CacheEntry = {
       markdown: md,
       buildId,
       expiresAt,
     };
-    cache.set(cacheKey, entry);
+    setCacheEntry(cache, cacheKey, entry, maxCacheEntries);
   }
   
   return md;

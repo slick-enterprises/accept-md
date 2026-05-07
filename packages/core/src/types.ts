@@ -63,6 +63,16 @@ export interface NextMarkdownConfig {
   outputMode?: 'markdown';
   /** Enable response caching (default: true) */
   cache?: boolean;
+  /**
+   * Maximum entries the in-memory markdown cache may hold. When exceeded, the
+   * oldest entry is evicted (FIFO). Default: 1000.
+   */
+  maxCacheEntries?: number;
+  /**
+   * Timeout (ms) for the internal fetch of the upstream HTML page. Set to 0
+   * to disable. Default: 10000.
+   */
+  fetchTimeoutMs?: number;
   /** Custom transform functions (markdown string -> markdown string) */
   transformers?: Array<(md: string) => string>;
   /** Base URL for internal fetch (default: from request) */

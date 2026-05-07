@@ -217,13 +217,37 @@ function extractMetadataAndJsonLd(html: string): {
 }
 
 /**
- * Escape a string for YAML by quoting it.
+ * Escape a string for YAML by quoting it (double-quoted style).
+ *
+ * Double-quoted YAML scalars must escape backslash, double-quote, and any
+ * control characters (newlines, tabs, etc.). Without this, a meta tag
+ * containing a literal newline would emit a raw newline inside the quoted
+ * value and produce invalid YAML.
  */
 function escapeYamlString(value: string): string {
-  // Always quote strings for consistency and to handle special characters
-  // Escape backslashes and quotes for YAML
-  const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-  return `"${escaped}"`;
+  let out = '';
+  for (let i = 0; i < value.length; i++) {
+    const ch = value.charCodeAt(i);
+    switch (ch) {
+      case 0x5c: out += '\\\\'; break; // \
+      case 0x22: out += '\\"'; break;  // "
+      case 0x08: out += '\\b'; break;
+      case 0x09: out += '\\t'; break;
+      case 0x0a: out += '\\n'; break;
+      case 0x0b: out += '\\v'; break;
+      case 0x0c: out += '\\f'; break;
+      case 0x0d: out += '\\r'; break;
+      case 0x1b: out += '\\e'; break;
+      default:
+        if (ch < 0x20 || ch === 0x7f) {
+          // Other C0 controls and DEL — emit \xNN
+          out += '\\x' + ch.toString(16).padStart(2, '0').toUpperCase();
+        } else {
+          out += value[i];
+        }
+    }
+  }
+  return `"${out}"`;
 }
 
 /**

@@ -2,7 +2,19 @@ import Link from "next/link";
 
 export function CTA() {
   return (
-    <section className="border-t border-white/5 px-4 py-section sm:px-6 lg:px-8">
+    <>
+      <style>{`
+        .btn-primary {
+          background: #fff;
+          color: #0a0a0a;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+          opacity: 0.92;
+          transform: translateY(-1px);
+        }
+      `}</style>
+      <section className="border-t border-white/5 px-4 py-section sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl text-center">
         <p className="section-label">Ship it</p>
         <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -29,5 +41,6 @@ export function CTA() {
         </div>
       </div>
     </section>
+    </>
   );
 }

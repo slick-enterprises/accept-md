@@ -147,25 +147,47 @@ function findNextConfig(projectRoot: string): string | null {
 }
 
 /**
- * Check if next.config already has accept-md rewrite.
- * Matches the rewrite format: /api/accept-md/:path*
- * Detection is flexible - only requires destination and accept header (source pattern can vary)
+ * Check if next.config already has an accept-md rewrite (in either supported form):
+ *   - query-param form (current):  destination: '/api/accept-md?path=:path*'
+ *   - slug form (legacy 5.0.0):    destination: '/api/accept-md/:path*'
+ *
+ * Detection is flexible — it only requires a recognized destination and an
+ * `accept: text/markdown` header rule. The source pattern can vary.
  */
 function hasAcceptMdRewriteInConfig(projectRoot: string, configPath: string): boolean {
   try {
     const fullPath = join(projectRoot, configPath);
     const content = readFileSync(fullPath, 'utf-8');
-    // Check for accept-md rewrite pattern - match the actual format
-    // Pattern: destination: '/api/accept-md/:path*' (path parameter)
-    const hasDestinationPathParam = /['"]\/api\/accept-md\/:path\*['"]/.test(content);
-    // Check for accept header - look for both 'accept' key and 'text/markdown' value
-    // They may be on different lines, so check independently
+    // Either destination form counts as "already configured".
+    const hasDestinationQueryParam = /['"]\/api\/accept-md\?path=:path/.test(content);
+    const hasDestinationPathSlug = /['"]\/api\/accept-md\/:path\*['"]/.test(content);
+    const hasDestination = hasDestinationQueryParam || hasDestinationPathSlug;
+    // Check for accept header — both 'accept' key and 'text/markdown' value
+    // (may be on different lines, so check independently).
     const hasAcceptKey = /\bkey\s*:\s*['"]accept['"]/i.test(content);
     const hasMarkdownValue = /text\/markdown/i.test(content);
     const hasAcceptHeader = hasAcceptKey && hasMarkdownValue;
-    // If we have the destination and accept header, it's an accept-md rewrite
-    // Source pattern can vary (with or without _next exclusion, different regex patterns)
-    return hasDestinationPathParam && hasAcceptHeader;
+    return hasDestination && hasAcceptHeader;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check whether the project's next.config contains the **legacy** path-slug
+ * rewrite that requires a catch-all handler (issue #16). Used by doctor to
+ * surface a fix-it suggestion.
+ */
+export function hasLegacySlugRewrite(projectRoot: string): boolean {
+  const configPath = findNextConfig(projectRoot);
+  if (!configPath) return false;
+  try {
+    const content = readFileSync(join(projectRoot, configPath), 'utf-8');
+    const hasSlug = /['"]\/api\/accept-md\/:path\*['"]/.test(content);
+    const hasQuery = /['"]\/api\/accept-md\?path=:path/.test(content);
+    const hasAcceptKey = /\bkey\s*:\s*['"]accept['"]/i.test(content);
+    const hasMarkdownValue = /text\/markdown/i.test(content);
+    return hasSlug && !hasQuery && hasAcceptKey && hasMarkdownValue;
   } catch {
     return false;
   }
@@ -195,11 +217,14 @@ function addRewriteToNextConfig(projectRoot: string, configPath: string): { succ
       content = content.replace(/module\.exports\s*=\s*nextConfig;?/, 'export default nextConfig;');
     }
     
-    // Format the rewrite object as a string (JS-compatible)
-    // Use path parameter format in destination for catch-all patterns
+    // Format the rewrite object as a string (JS-compatible).
+    // Use the **query-param form** so the route handler at the static path
+    // /api/accept-md/route.{js,ts} catches the request. The legacy slug form
+    // /api/accept-md/:path* required a catch-all handler that the generator
+    // does not write, and produced 404s in 5.0.0 (issue #16).
     const rewriteStr = `    {
       source: '/:path*',
-      destination: '/api/accept-md/:path*',
+      destination: '/api/accept-md?path=:path*',
       has: [
         {
           type: 'header',

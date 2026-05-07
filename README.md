@@ -144,7 +144,7 @@ Install the runtime:
 pnpm add accept-md-runtime
 ```
 
-For **Next.js**, add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md/:path*` (path parameter), and add the API route / Route Handler that calls `getMarkdownForPath` from the package.
+For **Next.js**, add rewrites to `next.config.js/ts` (preferred) or middleware that rewrites `Accept: text/markdown` to `/api/accept-md?path=:path*` (the original pathname is passed via the `path` query string), and add the API route / Route Handler that calls `getMarkdownForPath` from the package. The handler reads the original pathname from the `path` query parameter.
 
 For **SvelteKit**, add a route like:
 

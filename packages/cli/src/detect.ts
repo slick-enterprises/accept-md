@@ -42,8 +42,16 @@ function findNextAppInWorkspace(projectRoot: string): string | undefined {
 }
 
 /**
- * Check if next.config has accept-md rewrite configuration.
+ * Check if next.config has an accept-md rewrite configuration.
  * Uses pattern matching to avoid executing the config file.
+ *
+ * Recognizes both supported destination forms:
+ *   - query-param (current): '/api/accept-md?path=:path*'
+ *   - path slug (legacy 5.0.0, broken without catch-all): '/api/accept-md/:path*'
+ *
+ * Both are reported as "rewrite configured" so doctor doesn't falsely tell
+ * users on 5.0.0 that they have no rewrite. See `hasLegacySlugRewrite` in
+ * `init.ts` for the warning that targets the broken form.
  */
 function hasAcceptMdRewrite(projectRoot: string): boolean {
   const configPaths = [
@@ -59,10 +67,9 @@ function hasAcceptMdRewrite(projectRoot: string): boolean {
     if (!existsSync(fullPath)) continue;
     try {
       const content = readFileSync(fullPath, 'utf-8');
-      // Check for accept-md rewrite pattern:
-      // - destination: '/api/accept-md?path=:path*' or '/api/accept-md?path=:path'
-      // - has header with accept and text/markdown
-      const hasDestination = /['"]\/api\/accept-md\?path=:path/.test(content);
+      const hasDestinationQuery = /['"]\/api\/accept-md\?path=:path/.test(content);
+      const hasDestinationSlug = /['"]\/api\/accept-md\/:path\*['"]/.test(content);
+      const hasDestination = hasDestinationQuery || hasDestinationSlug;
       const hasAcceptHeader = /accept.*text\/markdown|text\/markdown.*accept/i.test(content);
       const hasBeforeFiles = /beforeFiles/i.test(content);
       if (hasDestination && hasAcceptHeader && hasBeforeFiles) {

@@ -52,8 +52,9 @@ export async function GET(request) {
   if (!path && pathFromQuery && pathFromQuery.trim() !== '') {
     path = pathFromQuery;
   }
-  // If pathname starts with /api/accept-md, extract the original path from it
-  // This handles next.config rewrites that use /api/accept-md/:path* pattern
+  // If pathname starts with /api/accept-md, extract the original path from it.
+  // This is a backward-compat fallback for legacy rewrites that used the path-slug
+  // form '/api/accept-md/:path*'. New configs use '/api/accept-md?path=:path*'.
   if (!path && pathname.startsWith(HANDLER_PATH + '/')) {
     path = pathname.slice(HANDLER_PATH.length);
     // Handle root path case: /api/accept-md/ becomes /
@@ -95,7 +96,7 @@ export async function GET(request) {
     return new NextResponse(markdown, {
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
-        'Cache-Control': config.cache ? 'public, s-maxage=60, stale-while-revalidate' : 'no-store',
+        'Cache-Control': config.cache !== false ? 'public, s-maxage=60, stale-while-revalidate' : 'no-store',
       },
     });
   } catch (err) {
@@ -178,8 +179,10 @@ export default async function handler(req, res) {
       headers,
     });
     res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-    if (config.cache) {
+    if (config.cache !== false) {
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'no-store');
     }
     res.status(200).send(markdown);
   } catch (err) {
@@ -258,7 +261,7 @@ export async function GET(event) {
     return new Response(markdown, {
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
-        'Cache-Control': config.cache ? 'public, s-maxage=60, stale-while-revalidate' : 'no-store',
+        'Cache-Control': config.cache !== false ? 'public, s-maxage=60, stale-while-revalidate' : 'no-store',
       },
     });
   } catch (err) {
@@ -301,13 +304,23 @@ export const handle = async ({ event, resolve }) => {
 `;
 
 /**
- * Returns the rewrite configuration object for next.config.js/ts
- * This is the preferred method over middleware (Next.js is moving away from middleware).
+ * Returns the rewrite configuration object for next.config.js/ts.
+ * This is the preferred method over middleware (Next.js is moving away
+ * from middleware).
+ *
+ * The destination uses the **query-param form** `/api/accept-md?path=:path*`
+ * rather than a path slug. This keeps the route handler at the static path
+ * `/api/accept-md/route.{js,ts}` (no catch-all directory needed) and matches
+ * the behavior of the generated middleware, which also passes the original
+ * pathname via the `path` query string.
+ *
+ * Issue #16: the legacy slug form `/api/accept-md/:path*` produced 404s
+ * because it required a catch-all handler that the generator did not write.
  */
 export function getNextConfigRewrite() {
   return {
     source: '/:path*',
-    destination: '/api/accept-md/:path*',
+    destination: '/api/accept-md?path=:path*',
     has: [
       {
         type: 'header',

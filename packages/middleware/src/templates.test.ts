@@ -8,6 +8,7 @@ import {
   APP_ROUTE_HANDLER_TEMPLATE,
   PAGES_API_HANDLER_TEMPLATE,
   SVELTEKIT_ROUTE_HANDLER_TEMPLATE,
+  getNextConfigRewrite,
 } from './templates.js';
 
 describe('templates', () => {
@@ -67,5 +68,33 @@ describe('templates', () => {
     expect(PAGES_API_HANDLER_TEMPLATE).toContain("req.headers['x-accept-md-path']");
     expect(PAGES_API_HANDLER_TEMPLATE).toContain('pathFromMatchedHeader');
     expect(PAGES_API_HANDLER_TEMPLATE).toContain('pathFromQuery');
+  });
+
+  describe('getNextConfigRewrite', () => {
+    it('returns the query-param destination form (issue #16)', () => {
+      // The rewrite destination must use the query-param form so that the
+      // request hits the static handler at /api/accept-md/route.{js,ts}.
+      // The legacy slug form '/api/accept-md/:path*' produced 404s because
+      // it would route to a sub-path that has no catch-all handler.
+      const rewrite = getNextConfigRewrite();
+      expect(rewrite.destination).toBe('/api/accept-md?path=:path*');
+      expect(rewrite.source).toBe('/:path*');
+    });
+
+    it('does not regress to the legacy slug form', () => {
+      const rewrite = getNextConfigRewrite();
+      expect(rewrite.destination).not.toBe('/api/accept-md/:path*');
+    });
+
+    it('keeps the accept: text/markdown header rule', () => {
+      const rewrite = getNextConfigRewrite();
+      expect(rewrite.has).toEqual([
+        {
+          type: 'header',
+          key: 'accept',
+          value: '(.*)text/markdown(.*)',
+        },
+      ]);
+    });
   });
 });

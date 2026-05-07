@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2026-05-07
+
+### Fixed
+
+- **Generated Next.js rewrite returns 404 for sub-paths** ([#16](https://github.com/slick-enterprises/accept-md/issues/16)): `accept-md init` and `getNextConfigRewrite()` now write the destination as `'/api/accept-md?path=:path*'` instead of the slug form `'/api/accept-md/:path*'`. The slug form required a catch-all handler that the generator did not write, so requests to any sub-path (e.g. `/blog/post`) returned 404. New configs route through the static handler at `/api/accept-md/route.{js,ts}` and read the original pathname from the `path` query string. The handler keeps a backward-compat fallback that extracts the path from `pathname` when an older slug-form rewrite is still present.
+- **`pathMatches` no longer matches every path on a `**` prefix**: rewritten as a recursive segment matcher so patterns like `**/admin` only match paths whose tail is `admin` (instead of every path that starts with anything). Added `handler.test.ts` with 15 cases covering literal segments, single `*`, double `**`, and multiple patterns.
+- **YAML frontmatter no longer emits raw control bytes**: `escapeYamlString` now escapes `\n`, `\t`, `\r`, `\b`, `\f`, `\v`, `\e`, and other C0 controls. Without this, a meta tag containing a literal newline produced invalid YAML that broke parsers downstream.
+- **`Cache-Control` defaulting**: route templates now check `config.cache !== false` (matching the documented default) when deciding between `public, s-maxage=60, stale-while-revalidate` and `no-store`, so undefined `cache` no longer drops to `no-store` by mistake. The Pages handler now also explicitly sets `Cache-Control: no-store` when caching is disabled.
+
+### Added
+
+- **`maxCacheEntries` config option** (default `1000`): caps in-memory cache size with FIFO eviction so long-running servers can't grow unbounded across distinct paths.
+- **`fetchTimeoutMs` config option** (default `10000`): aborts the upstream HTML fetch after the given timeout (uses `AbortSignal.timeout`, feature-detected for older runtimes). Set to `0` to disable.
+- **`accept-md doctor` warns on the legacy slug-form rewrite** so projects upgrading from 5.0.0 see a clear fix-it message instead of silent 404s.
+
+### Changed
+
+- Examples (`examples/app-router`, `examples/pages-router`) and the `website` are now in sync with the current handler templates and use the query-param rewrite form.
+- `detect.ts#hasAcceptMdRewrite` and `init.ts#hasAcceptMdRewriteInConfig` now recognize both the query-param form and the legacy slug form, so existing projects are reported as configured rather than as missing the rewrite.
+
 ## [3.0.0] - 2025-01-XX
 
 ### Added

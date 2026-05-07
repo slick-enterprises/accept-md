@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { detectProject } from './detect.js';
 import { scanProject, loadConfig, type DoctorReport } from '@accept-md/core';
-import { getRuntimeVersion, checkRuntimeVersion } from './init.js';
+import { getRuntimeVersion, checkRuntimeVersion, hasLegacySlugRewrite } from './init.js';
 
 export async function runDoctor(projectRoot: string): Promise<DoctorReport> {
   const detected = detectProject(projectRoot);
@@ -72,6 +72,15 @@ export async function runDoctor(projectRoot: string): Promise<DoctorReport> {
   // Check for rewrites first (preferred method)
   if (detected.hasRewriteConfig) {
     suggestions.push('Using next.config rewrites (preferred method).');
+    // Warn users on the legacy 5.0.0 slug-form rewrite (issue #16). The handler
+    // is at /api/accept-md/route.{js,ts} which cannot match /api/accept-md/foo/bar,
+    // so requests to sub-paths return 404. Suggest switching to the query-param
+    // form (or re-running init).
+    if (hasLegacySlugRewrite(projectRoot)) {
+      issues.push(
+        "next.config rewrite uses the legacy slug form '/api/accept-md/:path*', which returns 404 because the handler is not a catch-all. Change destination to '/api/accept-md?path=:path*' or re-run `npx accept-md init`. (issue #16)"
+      );
+    }
   } else if (detected.middlewarePath) {
     const content = readFileSync(join(projectRoot, detected.middlewarePath), 'utf-8');
     if (!content.includes('accept-md')) {

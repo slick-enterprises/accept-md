@@ -11,7 +11,6 @@ keywords:
   - nextjs html to markdown
 ---
 
-# How to Convert HTML to Markdown in Next.js (Complete Guide)
 
 Converting HTML to Markdown in Next.js is becoming essential for modern web applications. Whether you're building AI crawler endpoints, exporting documentation, or enabling content syndication, serving Markdown alongside HTML opens up powerful possibilities.
 

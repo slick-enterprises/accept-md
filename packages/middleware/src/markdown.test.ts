@@ -297,6 +297,29 @@ describe('htmlToMarkdown', () => {
     expect(md).toContain('description: "Description with: colon, # hash, and other chars"');
   });
 
+  it('escapes newlines, tabs, and control chars in YAML strings (regression)', () => {
+    // Build a description with literal newlines and a tab — common in CMS
+    // meta tags. Without escaping, these would emit raw control bytes
+    // inside a double-quoted YAML scalar and break parsing.
+    const desc = 'Line one\nLine two\tindented\rwith CR';
+    // Use String.raw + a real DOM fragment so the content arrives as-is.
+    const html =
+      '<html><head>' +
+      '<meta name="description" content="' + desc.replace(/"/g, '&quot;') + '">' +
+      '</head><body><p>x</p></body></html>';
+    const md = htmlToMarkdown(html);
+    // The frontmatter line for description must contain escaped sequences,
+    // not raw control bytes.
+    expect(md).toMatch(/description: "Line one\\nLine two\\tindented\\rwith CR"/);
+    // Splitting by newline must leave the description on a single line —
+    // i.e. no raw \n leaked into the YAML value.
+    const descLines = md.split('\n').filter((l) => l.startsWith('description:'));
+    expect(descLines).toHaveLength(1);
+    // No raw C0 control characters should appear inside the value.
+    // eslint-disable-next-line no-control-regex
+    expect(descLines[0]).not.toMatch(/[\x00-\x1f]/);
+  });
+
   it('combines frontmatter, content, and JSON-LD', () => {
     const html = `
       <html lang="en">
