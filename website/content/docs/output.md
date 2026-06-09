@@ -1,7 +1,7 @@
 ---
 title: "Markdown Output"
 description: "Understand the Markdown, YAML frontmatter, and JSON-LD that accept-md returns to agents."
-date: "2026-06-09"
+date: "2026-05-30"
 order: 3
 category: "Reference"
 keywords:
@@ -82,3 +82,7 @@ When caching is enabled in config, responses also include `Cache-Control: public
 ## Disabling metadata
 
 Advanced users can disable frontmatter with runtime markdown options. Most sites should keep it enabled because it helps agents understand title, canonical URL, Open Graph fields, and robots hints.
+
+## Agent discovery
+
+Agents can also read [`/llms.txt`](/llms.txt) for a machine-readable site map, preferred access method, and key URLs.

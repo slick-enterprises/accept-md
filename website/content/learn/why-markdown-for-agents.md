@@ -1,7 +1,7 @@
 ---
 title: "Why AI Agents Prefer Markdown"
 description: "Markdown gives agents a smaller, cleaner, higher-signal version of the content already present in your HTML."
-date: "2026-06-09"
+date: "2026-05-21"
 order: 2
 category: "AI Retrieval"
 keywords:

@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { AppShell } from "@/components/AppShell";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildAboutPageSchema,
+  buildBreadcrumbSchema,
+  SITE_URL,
+} from "@/lib/jsonld";
+import { buildArticleMetadata } from "@/lib/metadata";
 
-const siteUrl = "https://accept.md";
+const pageUrl = `${SITE_URL}/about`;
+const GITHUB_URL = "https://github.com/slick-enterprises/accept-md";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildArticleMetadata({
   title: "About",
   description:
     "accept-md is an open-source implementation for serving Markdown from existing Next.js and SvelteKit pages with Accept: text/markdown.",
+  url: pageUrl,
   keywords: [
     "accept-md",
     "accept markdown",
@@ -16,107 +24,123 @@ export const metadata: Metadata = {
     "Next.js markdown",
     "SvelteKit markdown",
   ],
-  openGraph: {
-    title: "About accept-md",
-    description:
-      "Open-source tooling for adding Accept Markdown support to Next.js and SvelteKit sites.",
-    url: `${siteUrl}/about`,
-  },
-  alternates: {
-    canonical: `${siteUrl}/about`,
-  },
-};
+  ogType: "website",
+});
 
 const principles = [
   "Use the pages you already have as the source of truth.",
   "Serve Markdown through HTTP content negotiation, not a separate content silo.",
-  "Keep browser traffic unchanged while making routes easier for AI agents to read.",
+  "Keep browser traffic unchanged while making routes easier for agents to read.",
   "Generate JavaScript-compatible handlers so non-TypeScript apps work too.",
 ];
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <Header />
-      <main className="mx-auto max-w-4xl px-4 pt-16 pb-24 sm:px-6 sm:pt-20 lg:px-8">
-        <header className="mb-12">
-          <p className="section-label">About</p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            accept-md turns existing pages into AI-readable Markdown
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-400">
-            The web already has the content. accept-md gives Next.js and
-            SvelteKit sites a practical way to return a clean Markdown
-            representation when clients ask for `Accept: text/markdown`.
-          </p>
-        </header>
+    <AppShell section="learn">
+      <JsonLd
+        data={[
+          buildAboutPageSchema({
+            name: "About accept-md",
+            description:
+              "Open-source tooling for adding Accept Markdown support to Next.js and SvelteKit sites.",
+            url: pageUrl,
+          }),
+          buildBreadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "About", url: pageUrl },
+          ]),
+        ]}
+      />
+      <header className="mb-12">
+        <p className="section-label">About</p>
+        <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          About accept-md
+        </h1>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-400">
+          accept-md is open-source tooling that adds{" "}
+          <code className="font-mono text-sm text-teal-400">
+            Accept: text/markdown
+          </code>{" "}
+          support to Next.js and SvelteKit sites. When a client requests
+          Markdown, the same URL returns a clean text representation of the
+          page — without a separate publishing pipeline.
+        </p>
+      </header>
 
-        <section className="grid gap-4 sm:grid-cols-2">
+      <section>
+        <h2 className="font-display text-xl font-semibold text-white">
+          Principles
+        </h2>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-ink-300">
           {principles.map((principle) => (
-            <div
-              key={principle}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm leading-relaxed text-ink-300"
-            >
+            <li key={principle} className="leading-relaxed">
               {principle}
-            </div>
+            </li>
           ))}
-        </section>
+        </ul>
+      </section>
 
-        <section className="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-white">
-            Implementation, not just explanation
-          </h2>
-          <p className="mt-4 text-ink-400">
-            accept-md is the implementation layer for teams that want Accept
-            Markdown support without maintaining a second Markdown publishing
-            pipeline. The CLI detects your framework, adds the route handler,
-            writes configuration, and keeps regular HTML requests untouched.
-          </p>
-          <p className="mt-4 text-ink-400">
-            The runtime converts the rendered HTML into Markdown, preserves
-            metadata through YAML frontmatter and JSON-LD blocks, and lets you
-            remove navigation, footers, and other layout chrome before agents
-            ingest the page.
-          </p>
-        </section>
+      <section className="mt-12">
+        <h2 className="font-display text-xl font-semibold text-white">
+          How it works
+        </h2>
+        <p className="mt-4 leading-relaxed text-ink-400">
+          The CLI detects your framework, adds a route handler, and writes
+          configuration. Regular HTML requests are unchanged. Markdown requests
+          are routed internally, rendered once as HTML, converted to Markdown,
+          and returned with frontmatter and JSON-LD preserved.
+        </p>
+      </section>
 
-        <section className="mt-12 grid gap-4 sm:grid-cols-3">
-          <Link
-            href="/docs"
-            className="card-hover rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+      <section className="mt-12">
+        <h2 className="font-display text-xl font-semibold text-white">
+          Project links
+        </h2>
+        <ul className="mt-4 space-y-2 text-sm">
+          <li>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-accent"
+            >
+              GitHub repository
+            </a>
+          </li>
+          <li>
+            <a
+              href={`${GITHUB_URL}/issues`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-accent"
+            >
+              Issue tracker
+            </a>
+          </li>
+          <li>
+            <Link href="/docs/installation" className="link-accent">
+              Installation guide
+            </Link>
+          </li>
+          <li>
+            <Link href="/docs/output" className="link-accent">
+              Markdown output reference
+            </Link>
+          </li>
+        </ul>
+        <p className="mt-8 text-sm text-ink-500">
+          Maintained by{" "}
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink-400 transition-colors hover:text-teal-400"
           >
-            <h2 className="text-lg font-semibold tracking-tight text-white">
-              Read the docs
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink-400">
-              Install, configure, and operate accept-md in production.
-            </p>
-          </Link>
-          <Link
-            href="/learn"
-            className="card-hover rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <h2 className="text-lg font-semibold tracking-tight text-white">
-              Learn the protocol
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink-400">
-              Understand content negotiation, caching, and AI retrieval.
-            </p>
-          </Link>
-          <Link
-            href="/integrations"
-            className="card-hover rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <h2 className="text-lg font-semibold tracking-tight text-white">
-              Pick your framework
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink-400">
-              Start with Next.js App Router, Pages Router, or SvelteKit.
-            </p>
-          </Link>
-        </section>
-      </main>
-      <Footer />
-    </div>
+            slick-enterprises
+          </a>
+          . MIT licensed.
+        </p>
+      </section>
+    </AppShell>
   );
 }

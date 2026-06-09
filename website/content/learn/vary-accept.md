@@ -1,7 +1,7 @@
 ---
 title: "Why Vary: Accept Is Required"
 description: "Use Vary: Accept so caches do not mix HTML and Markdown responses for the same URL."
-date: "2026-06-09"
+date: "2026-05-22"
 order: 3
 category: "HTTP Correctness"
 keywords:

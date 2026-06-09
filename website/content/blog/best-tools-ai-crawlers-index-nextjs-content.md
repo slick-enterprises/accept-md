@@ -9,6 +9,17 @@ keywords:
   - markdown for ai crawlers
   - next.js ai indexing
   - crawl nextjs content
+faq:
+  - question: "How do AI agents request Markdown?"
+    answer: "Some AI agents and crawler tools can advertise a Markdown preference with Accept: text/markdown, but support varies by client and version. Verify the exact request header in your own logs before assuming an agent will receive Markdown."
+  - question: "Will this affect my SEO?"
+    answer: "No. Search engines still receive HTML. Markdown is served only when explicitly requested via the Accept header."
+  - question: "Can I use this with authentication?"
+    answer: "Yes. The markdown handler can forward authentication headers, so protected routes work correctly."
+  - question: "How do I test if it's working?"
+    answer: "Run curl -H \"Accept: text/markdown\" https://your-site.com/page — you should receive Markdown instead of HTML."
+  - question: "Does this work with ISR (Incremental Static Regeneration)?"
+    answer: "Yes! The caching respects ISR revalidation times, so Markdown updates when your pages revalidate."
 ---
 
 
@@ -385,36 +396,9 @@ For Next.js applications, the Accept header approach provides the best balance o
 
 While Puppeteer works for JavaScript-heavy applications, it's unnecessary overhead for Next.js since pages are already server-rendered. The Accept header method gives AI crawlers clean Markdown while keeping your codebase simple and performant.
 
-**Ready to make your Next.js content AI-friendly?** Try [accept-md](https://accept.md) for a production-ready solution, or implement your own using the patterns in this guide.
-
-## FAQ
-
-### How do AI agents request Markdown?
-
-Some AI agents and crawler tools can advertise a Markdown preference with `Accept: text/markdown`, but support varies by client and version. Verify the exact request header in your own logs before assuming an agent will receive Markdown.
-
-### Will this affect my SEO?
-
-No. Search engines still receive HTML. Markdown is served only when explicitly requested via the Accept header.
-
-### Can I use this with authentication?
-
-Yes. The markdown handler can forward authentication headers, so protected routes work correctly.
-
-### How do I test if it's working?
-
-```bash
-curl -H "Accept: text/markdown" https://your-site.com/page
-```
-
-You should receive Markdown instead of HTML.
-
-### Does this work with ISR (Incremental Static Regeneration)?
-
-Yes! The caching respects ISR revalidation times, so Markdown updates when your pages revalidate.
-
 ## Related resources
 
+- [Which AI agents request Markdown? The 2026 support matrix explained](/blog/ai-agent-markdown-support-matrix-2026)
 - [AI agent compatibility matrix](https://acceptmarkdown.com/status)
 - [Learn what Accept Markdown means](/learn/accept-markdown)
 - [Run a Markdown audit](/markdown-audit)

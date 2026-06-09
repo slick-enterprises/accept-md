@@ -1,7 +1,7 @@
 ---
 title: "Caching and CDN Behavior"
 description: "Cache Markdown responses safely with Vary: Accept, ISR-aware fetches, and deployment-specific checks."
-date: "2026-06-09"
+date: "2026-06-01"
 order: 5
 category: "Production"
 keywords:

@@ -1,8 +1,7 @@
 import { MetadataRoute } from "next";
 import { getAllBlogPosts } from "@/lib/blog";
 import { getAllContent } from "@/lib/content";
-
-const siteUrl = "https://accept.md";
+import { SITE_URL } from "@/lib/jsonld";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const blogPosts = getAllBlogPosts();
@@ -11,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const integrations = getAllContent("integrations");
   
   const blogUrls: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-    url: `${siteUrl}/blog/${post.slug}`,
+    url: `${SITE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: "monthly" as const,
     priority: 0.7,
@@ -19,20 +18,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const contentUrls: MetadataRoute.Sitemap = [
     ...docs.map((item) => ({
-      url: `${siteUrl}/docs/${item.slug}`,
-      lastModified: item.date ? new Date(item.date) : new Date(),
+      url: `${SITE_URL}/docs/${item.slug}`,
+      lastModified: new Date(item.updated || item.date || Date.now()),
       changeFrequency: "monthly" as const,
       priority: 0.75,
     })),
     ...learn.map((item) => ({
-      url: `${siteUrl}/learn/${item.slug}`,
-      lastModified: item.date ? new Date(item.date) : new Date(),
+      url: `${SITE_URL}/learn/${item.slug}`,
+      lastModified: new Date(item.updated || item.date || Date.now()),
       changeFrequency: "monthly" as const,
       priority: 0.75,
     })),
     ...integrations.map((item) => ({
-      url: `${siteUrl}/integrations/${item.slug}`,
-      lastModified: item.date ? new Date(item.date) : new Date(),
+      url: `${SITE_URL}/integrations/${item.slug}`,
+      lastModified: new Date(item.updated || item.date || Date.now()),
       changeFrequency: "monthly" as const,
       priority: 0.75,
     })),
@@ -40,43 +39,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: siteUrl,
+      url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${siteUrl}/blog`,
+      url: `${SITE_URL}/blog`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/docs`,
+      url: `${SITE_URL}/docs`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/learn`,
+      url: `${SITE_URL}/learn`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/integrations`,
+      url: `${SITE_URL}/integrations`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.85,
     },
     {
-      url: `${siteUrl}/markdown-audit`,
+      url: `${SITE_URL}/markdown-audit`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/about`,
+      url: `${SITE_URL}/about`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,

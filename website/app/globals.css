@@ -5,7 +5,7 @@
 :root {
   --background: #0a0a0a;
   --foreground: #fafafa;
-  --accent: #8b5cf6;
+  --accent: #2dd4bf;
   --muted: #737373;
   --card-border: rgba(255, 255, 255, 0.06);
   --card-hover-border: rgba(255, 255, 255, 0.12);
@@ -25,30 +25,15 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 80% 50% at 50% 0%,
-    rgba(255, 255, 255, 0.02) 0%,
-    transparent 50%
-  );
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Linear-style typography: sans-serif, bold headings */
+/* Headings use Source Serif 4 */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-serif), Georgia, Cambria, serif;
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.2;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 h1 {
@@ -95,30 +80,12 @@ p:last-child {
   text-rendering: optimizeLegibility;
 }
 
-/* Display text — same sans as body (Linear uses one family) */
+/* Display text — serif headings */
 .font-display {
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "kern" 1, "liga" 1;
-  text-rendering: optimizeLegibility;
+  font-family: var(--font-serif), Georgia, Cambria, serif;
 }
 
-/* Minimal grid — Linear-style restraint */
-.bg-grid {
-  background-image: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.02) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.02) 1px,
-      transparent 1px
-    );
-  background-size: 24px 24px;
-  position: relative;
-}
-
-/* Section label — Linear FIG style: minimal, light grey */
+/* Section label — uppercase nav-style labels */
 .section-label {
   font-size: 0.6875rem;
   font-weight: 500;
@@ -128,15 +95,26 @@ p:last-child {
   display: inline-block;
 }
 
-/* Subtle gradient text — Linear-style restraint */
-.gradient-text {
-  background: linear-gradient(135deg, #e4e4e7 0%, #a1a1aa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Technical token highlight */
+.accent-text {
+  color: var(--accent);
 }
 
-/* Minimal code block — Linear-style */
+/* Primary CTA — white bg, black text */
+.btn-primary {
+  background: #fff;
+  color: #0a0a0a;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-primary:active {
+  opacity: 0.88;
+}
+
 .code-block {
   border-radius: 0.75rem;
   border: 1px solid var(--card-border);
@@ -150,41 +128,19 @@ p:last-child {
 
 .code-block:hover {
   border-color: var(--card-hover-border);
-  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
 }
 
-/* Primary CTA — Linear-style: white bg, black text */
-.btn-primary {
-  background: #fff;
-  color: #0a0a0a;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.btn-primary:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Secondary — ghost / outline, Linear-style */
+/* Secondary — ghost / outline */
 .btn-secondary {
   background: transparent;
   border: 1px solid var(--card-hover-border);
   color: #fafafa;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.14);
-  transform: translateY(-1px);
-}
-
-.btn-secondary:active {
-  transform: translateY(0);
 }
 
 /* Legacy glow-border for backward compatibility */
@@ -192,30 +148,34 @@ p:last-child {
   @apply btn-primary;
 }
 
-/* Card hover — subtle micro interaction */
+/* Card hover — border brightens only */
 .card-hover {
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .card-hover:hover {
-  transform: translateY(-2px);
   border-color: var(--card-hover-border);
-  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
 }
 
-/* Subtle pulse animation for icons */
-.icon-pulse {
-  animation: icon-pulse 2s ease-in-out infinite;
+/* Text link with teal accent */
+.link-accent {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: opacity 0.2s ease;
 }
 
-@keyframes icon-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
+.link-accent:hover {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -419,7 +379,102 @@ p:last-child {
 }
 
 .prose-blog a:hover {
+  color: var(--accent);
+}
+
+/* Docs — tighter reference style */
+.prose-docs {
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 70ch;
+}
+
+.prose-docs h2 {
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  font-size: 1.25rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   color: #fafafa;
+}
+
+.prose-docs h3 {
+  margin-top: 1.75em;
+  margin-bottom: 0.5em;
+  font-size: 1.125rem;
+  color: #fafafa;
+}
+
+.prose-docs a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.prose-docs a:hover {
+  opacity: 0.85;
+}
+
+.prose-docs p code,
+.prose-docs li code {
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.15);
+  font-size: 0.875em;
+}
+
+.prose-docs pre {
+  margin-top: 1.25em;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+}
+
+/* Learn — essay style with serif body */
+.prose-learn {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  max-width: 65ch;
+}
+
+.prose-learn p {
+  font-family: var(--font-serif), Georgia, Cambria, serif;
+}
+
+.prose-learn h2 {
+  margin-top: 2.25em;
+  margin-bottom: 0.75em;
+  font-size: 1.5rem;
+  font-family: var(--font-serif), Georgia, Cambria, serif;
+  color: #fafafa;
+}
+
+.prose-learn a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.prose-learn pre {
+  margin-top: 1.5em;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+}
+
+.prose-learn p code,
+.prose-learn li code {
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 /* Inline code only: one-line snippets get border + subtle bg */

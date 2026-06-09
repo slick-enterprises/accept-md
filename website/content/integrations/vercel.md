@@ -1,7 +1,7 @@
 ---
 title: "Vercel"
 description: "Deploy accept-md on Vercel with the right base URL, postbuild hook, and cache checks."
-date: "2026-06-09"
+date: "2026-06-07"
 order: 4
 category: "Deployment"
 keywords:

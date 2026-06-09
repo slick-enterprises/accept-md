@@ -21,7 +21,7 @@ pnpm start
 
 - **Next.js 14** (App Router)
 - **Tailwind CSS** + `@tailwindcss/typography`
-- **SEO**: metadata API, Open Graph, Twitter cards, JSON-LD, `sitemap.xml`, `robots.txt`, dynamic OG image
+- **SEO**: metadata API, Open Graph, Twitter cards, global `WebSite` + `SearchAction` JSON-LD, page-level structured data (`TechArticle`, `BreadcrumbList`, `CollectionPage`, `FAQPage`), site search at `/?s=`, `sitemap.xml`, `robots.txt`, dynamic OG image, favicon, and `logo.png`
 
 ## Deploy (Vercel, monorepo)
 

@@ -9,6 +9,17 @@ keywords:
   - next.js markdown conversion
   - html markdown converter
   - nextjs html to markdown
+faq:
+  - question: "Can I convert existing Next.js pages to Markdown?"
+    answer: "Yes! Using the Accept header approach, you can serve Markdown versions of any existing page without modifying your components."
+  - question: "Does this work with App Router and Pages Router?"
+    answer: "Yes, both Next.js routing strategies are supported. The implementation differs slightly, but the concept is the same."
+  - question: "Will this affect my regular users?"
+    answer: "No. Regular users requesting HTML see no difference. Only requests with Accept: text/markdown receive Markdown."
+  - question: "How do I handle authentication?"
+    answer: "The markdown handler can forward authentication headers to your page fetch, so protected routes work correctly."
+  - question: "Can I customize the Markdown output?"
+    answer: "Yes, most solutions support custom transformers and configuration options for cleaning HTML, formatting, and post-processing."
 ---
 
 
@@ -345,30 +356,6 @@ Converting HTML to Markdown in Next.js opens up powerful possibilities for AI in
 - Require zero changes to existing pages
 
 The Accept header approach provides a standards-compliant way to serve Markdown alongside HTML, making your content accessible to both human users and automated systems.
-
-**Ready to get started?** Try [accept-md](https://accept.md) for a production-ready solution that handles all the complexity, or implement your own using the patterns in this guide.
-
-## FAQ
-
-### Can I convert existing Next.js pages to Markdown?
-
-Yes! Using the Accept header approach, you can serve Markdown versions of any existing page without modifying your components.
-
-### Does this work with App Router and Pages Router?
-
-Yes, both Next.js routing strategies are supported. The implementation differs slightly, but the concept is the same.
-
-### Will this affect my regular users?
-
-No. Regular users requesting HTML see no difference. Only requests with `Accept: text/markdown` receive Markdown.
-
-### How do I handle authentication?
-
-The markdown handler can forward authentication headers to your page fetch, so protected routes work correctly.
-
-### Can I customize the Markdown output?
-
-Yes, most solutions support custom transformers and configuration options for cleaning HTML, formatting, and post-processing.
 
 ## Related resources
 

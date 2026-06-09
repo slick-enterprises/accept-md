@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildBreadcrumbSchema,
+  buildTechArticleSchema,
+  SITE_URL,
+} from "@/lib/jsonld";
+import { buildArticleMetadata } from "@/lib/metadata";
 import { getAllContentSlugs, getContentItem } from "@/lib/content";
 
 interface IntegrationPageProps {
@@ -9,8 +16,6 @@ interface IntegrationPageProps {
     slug: string;
   };
 }
-
-const siteUrl = "https://accept.md";
 
 export function generateStaticParams() {
   return getAllContentSlugs("integrations").map((slug) => ({ slug }));
@@ -25,20 +30,17 @@ export function generateMetadata({ params }: IntegrationPageProps): Metadata {
     };
   }
 
-  return {
+  const pageUrl = `${SITE_URL}/integrations/${item.slug}`;
+
+  return buildArticleMetadata({
     title: item.title,
     description: item.description,
+    url: pageUrl,
     keywords: item.keywords,
-    openGraph: {
-      title: `${item.title} | accept-md Integrations`,
-      description: item.description,
-      url: `${siteUrl}/integrations/${item.slug}`,
-      type: "article",
-    },
-    alternates: {
-      canonical: `${siteUrl}/integrations/${item.slug}`,
-    },
-  };
+    section: "Integrations",
+    publishedTime: item.date || undefined,
+    modifiedTime: item.updated || undefined,
+  });
 }
 
 export default function IntegrationPage({ params }: IntegrationPageProps) {
@@ -48,8 +50,27 @@ export default function IntegrationPage({ params }: IntegrationPageProps) {
     notFound();
   }
 
+  const pageUrl = `${SITE_URL}/integrations/${item.slug}`;
+
   return (
     <article>
+      <JsonLd
+        data={[
+          buildTechArticleSchema({
+            title: item.title,
+            description: item.description,
+            url: pageUrl,
+            datePublished: item.date || undefined,
+            dateModified: item.updated || undefined,
+            keywords: item.keywords,
+          }),
+          buildBreadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Integrations", url: `${SITE_URL}/integrations` },
+            { name: item.title, url: pageUrl },
+          ]),
+        ]}
+      />
       <nav className="mb-8 text-sm text-ink-500" aria-label="Breadcrumb">
         <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <li>
@@ -79,7 +100,7 @@ export default function IntegrationPage({ params }: IntegrationPageProps) {
         </p>
       </header>
 
-      <MarkdownContent content={item.content} />
+      <MarkdownContent content={item.content} variant="docs" />
     </article>
   );
 }

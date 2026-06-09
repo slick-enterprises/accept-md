@@ -1,0 +1,19 @@
+# accept-md
+> Serve Markdown from Next.js and SvelteKit via Accept: text/markdown
+
+## Preferred access
+All pages support: Accept: text/markdown
+Example: curl -H "Accept: text/markdown" https://accept.md/docs/installation
+
+## Key pages
+- Docs: https://accept.md/docs
+- Learn: https://accept.md/learn
+- Output format: https://accept.md/docs/output
+- Markdown audit: https://accept.md/markdown-audit
+- GitHub: https://github.com/slick-enterprises/accept-md
+
+## Sitemap
+https://accept.md/sitemap.xml
+
+## Crawler policy
+AI crawlers (GPTBot, PerplexityBot, ClaudeBot, etc.) are allowed. See /robots.txt.

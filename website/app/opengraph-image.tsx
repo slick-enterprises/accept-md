@@ -27,7 +27,7 @@ export default function OpenGraphImage() {
             color: "white",
           }}
         >
-          accept<span style={{ color: "#22c55e" }}>.md</span>
+          accept<span style={{ color: "#2dd4bf" }}>.md</span>
         </div>
         <div
           style={{

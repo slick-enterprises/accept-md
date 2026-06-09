@@ -1,7 +1,7 @@
 ---
 title: "Accept Headers and Quality Values"
 description: "Understand how clients express Markdown preference with Accept headers and q-values."
-date: "2026-06-09"
+date: "2026-05-23"
 order: 4
 category: "HTTP Correctness"
 keywords:

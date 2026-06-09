@@ -1,7 +1,7 @@
 ---
 title: "SvelteKit"
 description: "Serve Markdown from SvelteKit routes with accept-md hooks and a generated +server handler."
-date: "2026-06-09"
+date: "2026-06-06"
 order: 3
 category: "SvelteKit"
 keywords:

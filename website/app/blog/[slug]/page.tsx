@@ -1,11 +1,16 @@
-import React from "react";
-import { notFound } from "next/navigation";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getAllBlogSlugs, getBlogPost } from "@/lib/blog";
 import type { Metadata } from "next";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { CodeBlock } from "@/components/CodeBlock";
+import { MarkdownContent } from "@/components/MarkdownContent";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+  buildFaqPageSchema,
+  SITE_URL,
+} from "@/lib/jsonld";
+import { buildArticleMetadata } from "@/lib/metadata";
 
 interface BlogPostPageProps {
   params: {
@@ -31,23 +36,16 @@ export async function generateMetadata({
     };
   }
 
-  const siteUrl = "https://accept.md";
-  return {
+  const pageUrl = `${SITE_URL}/blog/${post.slug}`;
+
+  return buildArticleMetadata({
     title: post.title,
     description: post.description,
+    url: pageUrl,
     keywords: post.keywords,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      url: `${siteUrl}/blog/${post.slug}`,
-      type: "article",
-      publishedTime: post.date,
-      authors: [post.author],
-    },
-    alternates: {
-      canonical: `${siteUrl}/blog/${post.slug}`,
-    },
-  };
+    publishedTime: post.date,
+    authors: [post.author],
+  });
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
@@ -57,31 +55,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
-  const siteUrl = "https://accept.md";
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.description,
-    image: `${siteUrl}/opengraph-image`,
-    datePublished: post.date,
-    dateModified: post.date,
-    author: {
-      "@type": "Organization",
-      name: post.author,
-      url: "https://github.com/slick-enterprises/accept-md",
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "accept-md",
-      url: siteUrl,
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${siteUrl}/blog/${post.slug}`,
-    },
-    keywords: post.keywords.join(", "),
-  };
+  const pageUrl = `${SITE_URL}/blog/${post.slug}`;
 
   const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
     year: "numeric",
@@ -89,12 +63,26 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     day: "numeric",
   });
 
+  const schema = [
+    buildArticleSchema({
+      title: post.title,
+      description: post.description,
+      url: pageUrl,
+      datePublished: post.date,
+      authorName: post.author,
+      keywords: post.keywords,
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", url: SITE_URL },
+      { name: "Blog", url: `${SITE_URL}/blog` },
+      { name: post.title, url: pageUrl },
+    ]),
+    ...(post.faq.length > 0 ? [buildFaqPageSchema(post.faq)] : []),
+  ];
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
+      <JsonLd data={schema} />
       <article className="blog-article">
         <nav className="mb-8 text-sm text-ink-500" aria-label="Breadcrumb">
           <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -124,36 +112,18 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           )}
           <p className="mt-6 text-sm text-ink-500">
             <time dateTime={post.date}>{formattedDate}</time>
-            <span className="mx-2" aria-hidden="true">·</span>
+            <span className="mx-2" aria-hidden="true">
+              ·
+            </span>
             <span>{post.author}</span>
           </p>
         </header>
 
-        <div className="prose prose-invert prose-blog max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              pre({ children }) {
-                const code = React.Children.only(children) as React.ReactElement<{ className?: string; children?: React.ReactNode }>;
-                const lang = (code.props?.className ?? "").match(/language-(\S+)/)?.[1] ?? "text";
-                return (
-                  <CodeBlock language={lang} className="my-6">
-                    {code.props?.children}
-                  </CodeBlock>
-                );
-              },
-            }}
-          >
-            {post.content}
-          </ReactMarkdown>
-        </div>
+        <MarkdownContent content={post.content} variant="blog" />
 
-        <footer className="mt-16 pt-8 border-t border-white/5">
-          <Link
-            href="/blog"
-            className="text-sm font-medium text-ink-400 transition-colors hover:text-white"
-          >
-            Back to blog
+        <footer className="mt-16 border-t border-white/5 pt-8">
+          <Link href="/blog" className="link-accent text-sm font-medium">
+            ← Back to blog
           </Link>
         </footer>
       </article>

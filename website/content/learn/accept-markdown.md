@@ -1,7 +1,7 @@
 ---
 title: "What Accept Markdown Means"
 description: "A practical explanation of serving Markdown from the same URL when clients send Accept: text/markdown."
-date: "2026-06-09"
+date: "2026-05-20"
 order: 1
 category: "Fundamentals"
 keywords:

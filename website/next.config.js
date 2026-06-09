@@ -8,6 +8,11 @@ const nextConfig = {
       destination: "/markdown-audit",
       permanent: true,
     },
+    {
+      source: "/blog/serve-markdown-nextjs-without-puppeteer",
+      destination: "/blog/nextjs-markdown-export-puppeteer-vs-accept-header",
+      permanent: true,
+    },
   ],
 
   rewrites: async () => {

@@ -4,6 +4,11 @@ import matter from 'gray-matter';
 
 const blogDirectory = path.join(process.cwd(), 'content/blog');
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -12,6 +17,23 @@ export interface BlogPost {
   author: string;
   keywords: string[];
   content: string;
+  faq: FaqItem[];
+}
+
+function normalizeFaq(data: unknown): FaqItem[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter(
+      (item): item is { question: string; answer: string } =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as FaqItem).question === "string" &&
+        typeof (item as FaqItem).answer === "string"
+    )
+    .map(({ question, answer }) => ({ question, answer }));
 }
 
 export function getAllBlogPosts(): BlogPost[] {
@@ -36,6 +58,7 @@ export function getAllBlogPosts(): BlogPost[] {
         author: data.author || 'accept-md team',
         keywords: data.keywords || [],
         content,
+        faq: normalizeFaq(data.faq),
       };
     })
     .sort((a, b) => {
@@ -66,6 +89,7 @@ export function getBlogPost(slug: string): BlogPost | null {
       author: data.author || 'accept-md team',
       keywords: data.keywords || [],
       content,
+      faq: normalizeFaq(data.faq),
     };
   } catch (error) {
     return null;

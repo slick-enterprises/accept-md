@@ -1,7 +1,7 @@
 ---
 title: "Next.js App Router"
 description: "Serve Markdown from Next.js App Router pages with accept-md rewrites and a route handler."
-date: "2026-06-09"
+date: "2026-06-04"
 order: 1
 category: "Next.js"
 keywords:

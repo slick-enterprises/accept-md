@@ -1,36 +1,29 @@
 import type { Metadata } from "next";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { AppShell } from "@/components/AppShell";
+import { DocsSidebar } from "@/components/DocsSidebar";
+import { buildSectionMetadata } from "@/lib/metadata";
+import { DOCS_OG_IMAGE_URL } from "@/lib/jsonld";
+import { getAllContent } from "@/lib/content";
 
-const siteUrl = "https://accept.md";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSectionMetadata({
   title: "Documentation",
   description:
     "accept-md docs: install, configure, and operate Accept Markdown support for any Next.js or SvelteKit route.",
-  openGraph: {
-    title: "Documentation | accept-md",
-    description:
-      "Install, configure, and use accept-md to serve Markdown with Accept: text/markdown.",
-    url: `${siteUrl}/docs`,
-  },
-  alternates: {
-    canonical: `${siteUrl}/docs`,
-  },
-};
+  path: "/docs",
+  section: "Docs",
+  image: DOCS_OG_IMAGE_URL,
+});
 
 export default function DocsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const docs = getAllContent("docs");
+
   return (
-    <div className="min-h-screen bg-ink-950">
-      <Header />
-      <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        {children}
-      </main>
-      <Footer />
-    </div>
+    <AppShell section="docs" sidebar={<DocsSidebar items={docs} />}>
+      {children}
+    </AppShell>
   );
 }

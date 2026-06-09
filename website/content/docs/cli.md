@@ -1,7 +1,7 @@
 ---
 title: "CLI Reference"
 description: "Use accept-md init, doctor, fix-routes, and version-check in local and CI workflows."
-date: "2026-06-09"
+date: "2026-06-02"
 order: 4
 category: "Reference"
 keywords:

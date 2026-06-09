@@ -1,7 +1,7 @@
 ---
 title: "Next.js Pages Router"
 description: "Add Accept Markdown support to Pages Router sites with a generated API route."
-date: "2026-06-09"
+date: "2026-06-05"
 order: 2
 category: "Next.js"
 keywords:

@@ -1,7 +1,7 @@
 ---
 title: "When to Return 406 Not Acceptable"
 description: "Return 406 only when a client asks for representations your server truly cannot provide."
-date: "2026-06-09"
+date: "2026-05-24"
 order: 5
 category: "HTTP Correctness"
 keywords:

@@ -9,6 +9,17 @@ keywords:
   - nextjs markdown comparison
   - export nextjs to markdown
   - markdown export methods
+faq:
+  - question: "Can I use both approaches?"
+    answer: "Yes, but it's usually unnecessary. Choose based on your primary use case."
+  - question: "Does Accept Header work with client-side React?"
+    answer: "Yes, if the page is server-rendered (which Next.js does by default). The HTML is already rendered on the server."
+  - question: "What about pages that require authentication?"
+    answer: "Both approaches can forward authentication headers. Accept header is simpler since it's just an internal fetch."
+  - question: "Can I customize the Markdown output?"
+    answer: "Yes, both approaches support customization. Accept header solutions like accept-md provide transformers for post-processing."
+  - question: "Which is better for SEO?"
+    answer: "Neither affects SEO directly. Search engines still receive HTML. Markdown is for AI crawlers and other automated systems."
 ---
 
 When you need to export Next.js pages as Markdown, you have two main approaches: Puppeteer (headless browser) or Accept header (direct conversion). Each has trade-offs in performance, complexity, and use cases.
@@ -475,30 +486,6 @@ Puppeteer only makes sense if you need:
 - Client-side only content
 
 **Recommendation:** Use Accept header for Next.js markdown export. It's faster, cheaper, simpler, and better suited for modern deployments.
-
-**Ready to switch?** Try [accept-md](https://accept.md) for a production-ready Accept header implementation that handles all the complexity.
-
-## FAQ
-
-### Can I use both approaches?
-
-Yes, but it's usually unnecessary. Choose based on your primary use case.
-
-### Does Accept Header work with client-side React?
-
-Yes, if the page is server-rendered (which Next.js does by default). The HTML is already rendered on the server.
-
-### What about pages that require authentication?
-
-Both approaches can forward authentication headers. Accept header is simpler since it's just an internal fetch.
-
-### Can I customize the Markdown output?
-
-Yes, both approaches support customization. Accept header solutions like accept-md provide transformers for post-processing.
-
-### Which is better for SEO?
-
-Neither affects SEO directly. Search engines still receive HTML. Markdown is for AI crawlers and other automated systems.
 
 ## Related resources
 

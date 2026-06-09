@@ -2,24 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Check,
-  ChevronDown,
-  ChevronRight,
-  ClipboardList,
-  Loader2,
-  Radio,
-  Scale,
-  Search,
-  X,
-} from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Loader2, X } from "lucide-react";
 import type { CheckResult } from "@/lib/check-url";
 
 const LOADING_STEPS = [
-  "Connecting to your site…",
-  "Fetching HTML response…",
+  "Connecting…",
+  "Fetching HTML…",
   "Sending Accept: text/markdown…",
-  "Comparing sizes and headers…",
+  "Comparing headers and sizes…",
 ];
 
 const MIN_LOADING_MS = 2800;
@@ -37,35 +27,42 @@ function delay(ms: number) {
 
 function StatusBadge({ result }: { result: CheckResult }) {
   if (result.error) {
-    return <span className="text-xs text-red-400/90">Error</span>;
+    return (
+      <span className="rounded border border-red-400/20 bg-red-400/5 px-2 py-0.5 font-mono text-xs text-red-400">
+        Error
+      </span>
+    );
   }
   if (result.supported) {
-    return <span className="text-xs text-emerald-400/90">Supported</span>;
+    return (
+      <span className="rounded border border-emerald-400/20 bg-emerald-400/5 px-2 py-0.5 font-mono text-xs text-emerald-400">
+        Supported
+      </span>
+    );
   }
-  return <span className="text-xs text-amber-400/90">Not detected</span>;
+  return (
+    <span className="rounded border border-amber-400/20 bg-amber-400/5 px-2 py-0.5 font-mono text-xs text-amber-400">
+      Not detected
+    </span>
+  );
 }
 
 function LoadingSteps({ step }: { step: number }) {
   return (
-    <div
-      className="checker-reveal mx-auto mt-8 max-w-sm text-center"
-      style={{ animationDelay: "0ms" }}
-    >
-      <div className="flex justify-center gap-1.5">
+    <div className="checker-reveal mt-6 border-t border-white/[0.06] pt-6">
+      <p className="font-mono text-sm text-teal-400">
+        {LOADING_STEPS[step]}
+      </p>
+      <div className="mt-3 flex gap-1">
         {LOADING_STEPS.map((_, i) => (
           <span
             key={i}
-            className={`h-1.5 w-1.5 rounded-full bg-white/40 ${
-              i <= step ? "checker-pulse-dot" : "opacity-20"
+            className={`h-1 flex-1 rounded-full transition-colors ${
+              i <= step ? "bg-teal-400/60" : "bg-white/10"
             }`}
-            style={{ animationDelay: `${i * 200}ms` }}
           />
         ))}
       </div>
-      <p className="mt-4 text-sm text-ink-400 transition-opacity duration-300">
-        {LOADING_STEPS[step]}
-      </p>
-      <p className="mt-1 text-xs text-ink-600">This usually takes a few seconds</p>
     </div>
   );
 }
@@ -103,13 +100,10 @@ function AnimatedReduction({
   if (!active || target <= 0) return null;
 
   return (
-    <span
-      className="checker-reveal mt-3 inline-block text-2xl font-semibold tracking-tight text-white"
-      style={{ animationDelay: "200ms" }}
-    >
+    <p className="checker-reveal mt-4 font-mono text-lg text-white">
       −{display}%
-      <span className="ml-1 text-sm font-normal text-ink-500">smaller</span>
-    </span>
+      <span className="ml-2 text-sm text-ink-500">smaller than HTML</span>
+    </p>
   );
 }
 
@@ -126,37 +120,35 @@ function SizeComparison({
 
   return (
     <div
-      className={`mt-4 space-y-3 transition-opacity duration-500 ${
+      className={`mt-6 space-y-4 transition-opacity duration-500 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-ink-500">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between font-mono text-xs text-ink-500">
           <span>HTML</span>
-          <span className="font-mono text-ink-400">{formatBytes(sizes.htmlBytes)}</span>
+          <span>{formatBytes(sizes.htmlBytes)}</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/5">
+        <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
           <div
-            className="checker-bar h-full rounded-full bg-white/25"
+            className="checker-bar h-full rounded-full bg-white/30"
             style={{ width: visible ? `${htmlPct}%` : "0%" }}
           />
         </div>
       </div>
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-ink-500">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between font-mono text-xs text-ink-500">
           <span>
             Markdown
             {sizes.isEstimated && (
               <span className="text-ink-600"> · estimated</span>
             )}
           </span>
-          <span className="font-mono text-ink-400">
-            {formatBytes(sizes.markdownBytes)}
-          </span>
+          <span>{formatBytes(sizes.markdownBytes)}</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/5">
+        <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
           <div
-            className="checker-bar h-full rounded-full bg-emerald-500/70"
+            className="checker-bar h-full rounded-full bg-teal-400/70"
             style={{
               width: visible ? `${mdPct}%` : "0%",
               animationDelay: "150ms",
@@ -186,17 +178,20 @@ function CheckRow({
 
   return (
     <div
-      className="checker-reveal flex items-start gap-2 py-1.5 text-sm"
+      className="checker-reveal flex items-start gap-3 border-t border-white/5 py-3 text-sm first:border-t-0"
       style={{ animationDelay: `${delayMs}ms` }}
     >
       {pass ? (
-        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400/80" aria-hidden />
+        <Check
+          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400"
+          aria-hidden
+        />
       ) : (
-        <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-500" aria-hidden />
+        <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-600" aria-hidden />
       )}
       <div className="min-w-0">
-        <span className="text-ink-300">{label}</span>
-        <span className="text-ink-500"> — </span>
+        <span className="font-medium text-ink-200">{label}</span>
+        <span className="text-ink-600"> — </span>
         <span className="text-ink-500">{detail}</span>
       </div>
     </div>
@@ -218,11 +213,11 @@ function BodyViewer({
   if (!visible || (!bodies.html && !bodies.markdown)) return null;
 
   return (
-    <div className="checker-reveal mt-4" style={{ animationDelay: "100ms" }}>
+    <div className="checker-reveal mt-4 border-t border-white/5 pt-4">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1 text-sm text-ink-400 transition-colors hover:text-ink-200"
+        className="inline-flex items-center gap-1 text-sm text-ink-400 transition-colors hover:text-teal-400"
       >
         {open ? (
           <ChevronDown className="h-3.5 w-3.5" aria-hidden />
@@ -232,13 +227,15 @@ function BodyViewer({
         Show response
       </button>
       {open && (
-        <div className="mt-2">
-          <div className="flex gap-4 border-b border-white/5 pb-2 text-sm">
+        <div className="mt-3">
+          <div className="flex gap-4 border-b border-white/5 pb-2 font-mono text-xs">
             <button
               type="button"
               onClick={() => setTab("html")}
               className={
-                tab === "html" ? "text-white" : "text-ink-500 hover:text-ink-300"
+                tab === "html"
+                  ? "text-teal-400"
+                  : "text-ink-500 hover:text-ink-300"
               }
             >
               HTML
@@ -248,19 +245,21 @@ function BodyViewer({
               onClick={() => setTab("markdown")}
               className={
                 tab === "markdown"
-                  ? "text-white"
+                  ? "text-teal-400"
                   : "text-ink-500 hover:text-ink-300"
               }
             >
               Markdown{sizes.isEstimated ? " (estimated)" : ""}
             </button>
           </div>
-          <pre className="mt-2 max-h-96 overflow-auto rounded-lg bg-black/30 p-4 font-mono text-xs leading-relaxed text-ink-400">
+          <pre className="code-block mt-3 max-h-96 overflow-auto p-4 font-mono text-xs leading-relaxed text-ink-400">
             {tab === "html" ? bodies.html : bodies.markdown}
           </pre>
           {(tab === "html" && bodies.htmlTruncated) ||
           (tab === "markdown" && bodies.markdownTruncated) ? (
-            <p className="mt-2 text-xs text-ink-500">Response truncated at 2 MB.</p>
+            <p className="mt-2 text-xs text-ink-500">
+              Response truncated at 2 MB.
+            </p>
           ) : null}
         </div>
       )}
@@ -289,7 +288,9 @@ function AnimatedResultBlock({
     timeouts.push(setTimeout(() => setPhase(1), base));
     timeouts.push(setTimeout(() => setPhase(2), base + 500));
     timeouts.push(setTimeout(() => setPhase(3), base + 900));
-    timeouts.push(setTimeout(() => setPhase(5), base + 900 + checksDelay + 300));
+    timeouts.push(
+      setTimeout(() => setPhase(5), base + 900 + checksDelay + 300)
+    );
 
     return () => {
       timeouts.forEach(clearTimeout);
@@ -305,15 +306,12 @@ function AnimatedResultBlock({
   return (
     <article className="border-b border-white/5 py-8 last:border-b-0">
       {showHeader && (
-        <div
-          className="checker-reveal flex flex-wrap items-baseline gap-x-3 gap-y-1"
-          style={{ animationDelay: "0ms" }}
-        >
+        <div className="checker-reveal flex flex-wrap items-center gap-x-3 gap-y-2">
           <a
             href={result.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-base text-[#8ab4f8] hover:underline"
+            className="break-all font-mono text-sm text-teal-400 hover:underline"
           >
             {result.url}
           </a>
@@ -323,14 +321,16 @@ function AnimatedResultBlock({
 
       {result.error ? (
         showHeader && (
-          <p className="checker-reveal mt-2 text-sm text-red-400/90">{result.error}</p>
+          <p className="checker-reveal mt-3 text-sm text-red-400">
+            {result.error}
+          </p>
         )
       ) : (
         <>
           <SizeComparison sizes={result.sizes} visible={showSizes} />
 
           {showChecks && (
-            <div className="mt-4">
+            <div className="mt-4 rounded-lg border border-white/[0.06] bg-white/[0.02] px-4">
               {result.checks.map((check, i) => (
                 <CheckRow
                   key={check.id}
@@ -351,19 +351,13 @@ function AnimatedResultBlock({
           />
 
           {showFooter && (
-            <p className="checker-reveal mt-4 text-sm" style={{ animationDelay: "50ms" }}>
+            <p className="checker-reveal mt-4 text-sm">
               {result.supported ? (
-                <Link
-                  href="/docs/troubleshooting"
-                  className="text-ink-400 hover:text-ink-200 hover:underline"
-                >
+                <Link href="/docs/troubleshooting" className="link-accent">
                   Troubleshoot failed checks
                 </Link>
               ) : (
-                <Link
-                  href="/#install"
-                  className="text-ink-400 hover:text-ink-200 hover:underline"
-                >
+                <Link href="/#install" className="link-accent">
                   Install accept-md on your site
                 </Link>
               )}
@@ -385,7 +379,6 @@ export function UrlChecker() {
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<CheckResult[] | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const scrollToResults = useCallback(() => {
@@ -403,7 +396,6 @@ export function UrlChecker() {
     setLoadingStep(0);
     setError(null);
     setResults(null);
-    setHasSearched(true);
 
     const stepTimer = setInterval(() => {
       setLoadingStep((s) => Math.min(s + 1, LOADING_STEPS.length - 1));
@@ -471,177 +463,148 @@ export function UrlChecker() {
 
   return (
     <div className="w-full">
-      <div
-        className={`mx-auto max-w-2xl px-4 transition-all duration-500 ease-out ${
-          hasSearched ? "pt-6 sm:pt-8" : "pt-16 sm:pt-28"
-        }`}
-      >
-        {!hasSearched && (
-          <div className="mb-10 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              Markdown Audit
-            </h1>
-            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-ink-400 sm:text-base">
-              Audit any public URL for{" "}
-              <code className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-xs text-ink-300 sm:text-sm">
-                Accept: text/markdown
-              </code>{" "}
-              support — compare HTML vs Markdown sizes and verify negotiation
-              headers. Works on any site, not just accept-md installations.
-            </p>
-            <ul className="mx-auto mt-6 inline-flex max-w-md flex-col gap-2 text-left text-sm text-ink-400">
-              <li className="flex items-start gap-2.5">
-                <Radio
-                  className="mt-0.5 h-4 w-4 shrink-0 text-ink-500"
-                  aria-hidden
-                />
-                <span>Live negotiation test with real HTTP requests</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Scale
-                  className="mt-0.5 h-4 w-4 shrink-0 text-ink-500"
-                  aria-hidden
-                />
-                <span>HTML vs Markdown size comparison</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <ClipboardList
-                  className="mt-0.5 h-4 w-4 shrink-0 text-ink-500"
-                  aria-hidden
-                />
-                <span>Four-point checklist for production readiness</span>
-              </li>
-            </ul>
-          </div>
-        )}
-
-        {hasSearched && !loading && (
-          <p className="mb-4 text-center text-lg font-medium tracking-tight text-white">
-            accept<span className="text-ink-500">.</span>md
+      <section className="border-b border-white/5 pb-12">
+        <div className="max-w-2xl">
+          <p className="section-label">Markdown Audit</p>
+          <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            Test Accept Markdown on any URL
+          </h1>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-400">
+            Paste a public URL. We send{" "}
+            <code className="rounded border border-teal-400/20 bg-teal-400/5 px-1.5 py-0.5 font-mono text-sm text-teal-400">
+              Accept: text/markdown
+            </code>{" "}
+            and{" "}
+            <code className="rounded border border-teal-400/20 bg-teal-400/5 px-1.5 py-0.5 font-mono text-sm text-teal-400">
+              Accept: text/html
+            </code>
+            , then compare sizes and verify negotiation headers. Works on any
+            site.
           </p>
-        )}
 
-        <div className="relative">
-          <div
-            className={`flex items-center gap-2 rounded-full border bg-white/[0.04] px-4 py-2.5 shadow-[0_1px_6px_rgba(0,0,0,0.3)] transition-all duration-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.4)] focus-within:border-white/20 ${
-              loading ? "border-white/15" : "border-white/10"
-            } ${hasSearched ? "scale-[0.98]" : ""}`}
-          >
-            <Search className="h-5 w-5 shrink-0 text-ink-500" aria-hidden />
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !loading && handleCheck()}
-              placeholder="https://accept.md/docs"
-              disabled={loading}
-              className="min-w-0 flex-1 bg-transparent text-base text-white placeholder:text-ink-500 focus:outline-none disabled:opacity-60"
-              aria-label="URL to audit"
-            />
-            {loading && (
-              <Loader2
-                className="h-5 w-5 shrink-0 animate-spin text-ink-400"
-                aria-hidden
+          <div className="code-block mt-8">
+            <div className="border-b border-white/[0.06] px-4 py-2 font-mono text-xs text-ink-500">
+              URL to audit
+            </div>
+            <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !loading && handleCheck()}
+                placeholder="https://accept.md/docs"
+                disabled={loading}
+                className="min-w-0 flex-1 bg-transparent font-mono text-sm text-ink-200 placeholder:text-ink-600 focus:outline-none disabled:opacity-60"
+                aria-label="URL to audit"
               />
+              <button
+                type="button"
+                onClick={handleCheck}
+                disabled={loading}
+                className="btn-primary inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-40"
+              >
+                {loading && (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                )}
+                {loading ? "Auditing…" : "Start audit"}
+              </button>
+            </div>
+
+            {loading && <LoadingSteps step={loadingStep} />}
+
+            {error && !loading && (
+              <p className="border-t border-white/[0.06] px-4 py-3 text-sm text-red-400">
+                {error}
+              </p>
             )}
           </div>
 
-          <div className="mt-4 flex justify-center gap-3">
-            <button
-              type="button"
-              onClick={handleCheck}
-              disabled={loading}
-              className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-[#0a0a0a] transition-all hover:opacity-90 disabled:opacity-40"
-            >
-              {loading ? "Auditing…" : "Start audit"}
-            </button>
-          </div>
-
           {!loading && (
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => setAdvancedOpen(!advancedOpen)}
-                className="text-sm text-ink-500 transition-colors hover:text-ink-300"
-              >
-                {advancedOpen ? "Hide advanced options" : "Advanced options"}
-              </button>
-            </div>
-          )}
-
-          {advancedOpen && !loading && (
-            <div
-              className="checker-reveal mt-4 space-y-4 border-t border-white/5 pt-4"
-              style={{ animationDelay: "0ms" }}
+            <details
+              className="group mt-4"
+              open={advancedOpen}
+              onToggle={(e) =>
+                setAdvancedOpen((e.target as HTMLDetailsElement).open)
+              }
             >
-              <div>
-                <label htmlFor="extra-paths" className="block text-xs text-ink-500">
-                  Additional paths (one per line, uses URL above as base)
-                </label>
-                <textarea
-                  id="extra-paths"
-                  value={extraPaths}
-                  onChange={(e) => setExtraPaths(e.target.value)}
-                  rows={3}
-                  placeholder="/&#10;/docs&#10;/pricing"
-                  className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 font-mono text-sm text-ink-300 placeholder:text-ink-600 focus:border-white/20 focus:outline-none"
-                />
+              <summary className="cursor-pointer list-none text-sm text-ink-500 transition-colors hover:text-ink-300 [&::-webkit-details-marker]:hidden">
+                <span className="inline-flex items-center gap-1">
+                  Advanced options
+                  <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                </span>
+              </summary>
+              <div className="mt-4 space-y-4 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+                <div>
+                  <label
+                    htmlFor="extra-paths"
+                    className="block font-mono text-xs text-ink-500"
+                  >
+                    Additional paths (one per line)
+                  </label>
+                  <textarea
+                    id="extra-paths"
+                    value={extraPaths}
+                    onChange={(e) => setExtraPaths(e.target.value)}
+                    rows={3}
+                    placeholder="/&#10;/docs&#10;/pricing"
+                    className="mt-2 w-full rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2 font-mono text-sm text-ink-300 placeholder:text-ink-600 focus:border-teal-400/30 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="authorization"
+                    className="block font-mono text-xs text-ink-500"
+                  >
+                    Authorization
+                  </label>
+                  <input
+                    id="authorization"
+                    type="text"
+                    value={authorization}
+                    onChange={(e) => setAuthorization(e.target.value)}
+                    placeholder="Bearer … or Basic …"
+                    className="mt-2 w-full rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2 font-mono text-sm text-ink-300 placeholder:text-ink-600 focus:border-teal-400/30 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="cookie"
+                    className="block font-mono text-xs text-ink-500"
+                  >
+                    Cookie
+                  </label>
+                  <input
+                    id="cookie"
+                    type="text"
+                    value={cookie}
+                    onChange={(e) => setCookie(e.target.value)}
+                    placeholder="session=…"
+                    className="mt-2 w-full rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2 font-mono text-sm text-ink-300 placeholder:text-ink-600 focus:border-teal-400/30 focus:outline-none"
+                  />
+                </div>
+                <p className="text-xs text-ink-600">
+                  Credentials are sent only for the outbound check and are not
+                  stored.
+                </p>
               </div>
-              <div>
-                <label htmlFor="authorization" className="block text-xs text-ink-500">
-                  Authorization
-                </label>
-                <input
-                  id="authorization"
-                  type="text"
-                  value={authorization}
-                  onChange={(e) => setAuthorization(e.target.value)}
-                  placeholder="Bearer … or Basic …"
-                  className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-ink-300 placeholder:text-ink-600 focus:border-white/20 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="cookie" className="block text-xs text-ink-500">
-                  Cookie
-                </label>
-                <input
-                  id="cookie"
-                  type="text"
-                  value={cookie}
-                  onChange={(e) => setCookie(e.target.value)}
-                  placeholder="session=…"
-                  className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-ink-300 placeholder:text-ink-600 focus:border-white/20 focus:outline-none"
-                />
-              </div>
-              <p className="text-xs text-ink-600">
-                Credentials are sent only for the outbound check and are not stored.
-              </p>
-            </div>
-          )}
-
-          {loading && <LoadingSteps step={loadingStep} />}
-
-          {error && !loading && (
-            <p className="checker-reveal mt-6 text-center text-sm text-red-400/90">
-              {error}
-            </p>
+            </details>
           )}
         </div>
-      </div>
+      </section>
 
       {results && results.length > 0 && !loading && (
-        <div
-          ref={resultsRef}
-          className="mx-auto mt-4 max-w-2xl px-4 pb-8 scroll-mt-24"
-        >
-          {results.map((result, index) => (
-            <AnimatedResultBlock
-              key={result.url}
-              result={result}
-              index={index}
-              onRevealStart={index === 0 ? scrollToResults : undefined}
-            />
-          ))}
+        <div ref={resultsRef} className="scroll-mt-24 pt-8">
+          <p className="section-label mb-4">Report</p>
+          <div className="max-w-2xl rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 sm:px-6">
+            {results.map((result, index) => (
+              <AnimatedResultBlock
+                key={result.url}
+                result={result}
+                index={index}
+                onRevealStart={index === 0 ? scrollToResults : undefined}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

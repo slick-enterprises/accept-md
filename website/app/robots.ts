@@ -1,6 +1,5 @@
 import { MetadataRoute } from "next";
-
-const siteUrl = "https://accept.md";
+import { SITE_URL } from "@/lib/jsonld";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/"],
     },
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { AppShell } from "@/components/AppShell";
+import { buildSectionMetadata } from "@/lib/metadata";
+import { BLOG_OG_IMAGE_URL, SITE_URL } from "@/lib/jsonld";
 
-const siteUrl = "https://accept.md";
-
-export const metadata: Metadata = {
+const sectionMetadata = buildSectionMetadata({
   title: "Blog",
   description:
     "Guides and best practices for serving Markdown from Next.js and SvelteKit — AI crawlers, content syndication, and more.",
-  openGraph: {
-    title: "Blog | accept-md",
-    description:
-      "Guides and best practices for serving Markdown from Next.js and SvelteKit.",
-    url: `${siteUrl}/blog`,
-  },
+  path: "/blog",
+  image: BLOG_OG_IMAGE_URL,
+});
+
+export const metadata: Metadata = {
+  ...sectionMetadata,
   alternates: {
-    canonical: `${siteUrl}/blog`,
+    ...sectionMetadata.alternates,
+    types: {
+      "application/rss+xml": `${SITE_URL}/feed.xml`,
+    },
   },
 };
 
@@ -24,13 +26,5 @@ export default function BlogLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <Header />
-      <main className="mx-auto max-w-3xl px-4 pt-16 pb-24 sm:px-6 sm:pt-20 lg:px-8">
-        {children}
-      </main>
-      <Footer />
-    </div>
-  );
+  return <AppShell section="blog">{children}</AppShell>;
 }

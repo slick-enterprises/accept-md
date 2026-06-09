@@ -1,7 +1,7 @@
 ---
 title: "Installation"
 description: "Install accept-md in Next.js or SvelteKit and verify that Markdown negotiation works."
-date: "2026-06-09"
+date: "2026-05-28"
 order: 1
 category: "Start"
 keywords:
@@ -9,6 +9,15 @@ keywords:
   - accept-md installation
   - Next.js markdown
   - SvelteKit markdown
+faq:
+  - question: "Does accept-md work with App Router and Pages Router?"
+    answer: "Yes. The CLI detects your Next.js router and generates the correct handler for App Router or Pages Router."
+  - question: "Will Accept Markdown affect my SEO?"
+    answer: "No. Search engines still receive HTML. Markdown is served only when a client sends Accept: text/markdown."
+  - question: "Do I need to change my page components?"
+    answer: "No. accept-md serves Markdown from your existing rendered pages through content negotiation."
+  - question: "How do I verify installation worked?"
+    answer: "Run curl -s -H \"Accept: text/markdown\" https://your-site.com/ and confirm you receive Markdown with Content-Type text/markdown and Vary: Accept."
 ---
 
 ## Run init from your app

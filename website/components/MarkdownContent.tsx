@@ -1,17 +1,31 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { CodeBlock } from "./CodeBlock";
+import {
+  markdownRehypePlugins,
+  markdownRemarkPlugins,
+} from "@/lib/markdown-plugins";
 
 interface MarkdownContentProps {
   content: string;
+  variant?: "blog" | "docs" | "learn";
 }
 
-export function MarkdownContent({ content }: MarkdownContentProps) {
+const proseClass: Record<NonNullable<MarkdownContentProps["variant"]>, string> = {
+  blog: "prose-blog",
+  docs: "prose-docs",
+  learn: "prose-learn",
+};
+
+export function MarkdownContent({
+  content,
+  variant = "blog",
+}: MarkdownContentProps) {
   return (
-    <div className="prose prose-invert prose-blog max-w-none">
+    <div className={`prose prose-invert ${proseClass[variant]} max-w-none`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={markdownRemarkPlugins}
+        rehypePlugins={markdownRehypePlugins}
         components={{
           pre({ children }) {
             const code = React.Children.only(children) as React.ReactElement<{

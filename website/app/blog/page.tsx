@@ -1,11 +1,36 @@
 import Link from "next/link";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildBreadcrumbSchema,
+  buildCollectionPageSchema,
+  SITE_URL,
+} from "@/lib/jsonld";
 import { getAllBlogPosts } from "@/lib/blog";
 
 export default function BlogPage() {
   const posts = getAllBlogPosts();
+  const pageUrl = `${SITE_URL}/blog`;
 
   return (
     <div>
+      <JsonLd
+        data={[
+          buildCollectionPageSchema({
+            name: "accept-md Blog",
+            description:
+              "Guides, deep dives, and best practices for serving Markdown from Next.js and SvelteKit.",
+            url: pageUrl,
+            items: posts.map((post) => ({
+              name: post.title,
+              url: `${SITE_URL}/blog/${post.slug}`,
+            })),
+          }),
+          buildBreadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Blog", url: pageUrl },
+          ]),
+        ]}
+      />
       <header className="mb-16">
         <p className="section-label">Blog</p>
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">

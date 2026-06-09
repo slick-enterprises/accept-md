@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/AppShell";
 import { CheckPageContent, faqSchemaItems } from "@/components/CheckPageContent";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
 import { UrlChecker } from "@/components/UrlChecker";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  buildBreadcrumbSchema,
+  buildFaqPageSchema,
+  buildWebApplicationSchema,
+  AUDIT_OG_IMAGE_URL,
+  SITE_URL,
+} from "@/lib/jsonld";
+import { buildArticleMetadata } from "@/lib/metadata";
 
-const siteUrl = "https://accept.md";
-const pageUrl = `${siteUrl}/markdown-audit`;
+const pageUrl = `${SITE_URL}/markdown-audit`;
 
 const title = "Website Markdown Audit — Test Accept Markdown Support";
 const description =
   "Free Markdown audit tool: paste any URL to test Accept: text/markdown responses, compare HTML vs Markdown size, verify Vary: Accept, and get a production-readiness report.";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildArticleMetadata({
   title,
   description,
+  url: pageUrl,
   keywords: [
     "markdown audit",
     "audit website markdown",
@@ -22,101 +30,35 @@ export const metadata: Metadata = {
     "Vary Accept",
     "AI crawler markdown",
   ],
-  openGraph: {
-    title: `${title} | accept-md`,
-    description,
-    url: pageUrl,
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${title} | accept-md`,
-    description,
-  },
-  alternates: {
-    canonical: pageUrl,
-  },
-};
-
-const webApplicationSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "Markdown Audit",
-  applicationCategory: "DeveloperApplication",
-  operatingSystem: "Any",
-  url: pageUrl,
-  description,
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-  },
-  featureList: [
-    "Markdown response verification",
-    "HTML fallback check",
-    "Vary: Accept header audit",
-    "Distinct representation comparison",
-  ],
-  author: {
-    "@type": "Organization",
-    name: "accept-md",
-    url: "https://github.com/slick-enterprises/accept-md",
-  },
-};
-
-const faqPageSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqSchemaItems.map(({ question, answer }) => ({
-    "@type": "Question",
-    name: question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: answer,
-    },
-  })),
-};
-
-const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: siteUrl,
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: "Markdown Audit",
-      item: pageUrl,
-    },
-  ],
-};
+  ogType: "website",
+  image: AUDIT_OG_IMAGE_URL,
+});
 
 export default function MarkdownAuditPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationSchema) }}
+    <AppShell section="audit">
+      <JsonLd
+        data={[
+          buildWebApplicationSchema({
+            name: "Markdown Audit",
+            description,
+            url: pageUrl,
+            featureList: [
+              "Markdown response verification",
+              "HTML fallback check",
+              "Vary: Accept header audit",
+              "Distinct representation comparison",
+            ],
+          }),
+          buildFaqPageSchema(faqSchemaItems),
+          buildBreadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Markdown Audit", url: pageUrl },
+          ]),
+        ]}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <Header />
-      <main className="pb-16">
-        <UrlChecker />
-        <CheckPageContent />
-      </main>
-      <Footer />
-    </div>
+      <UrlChecker />
+      <CheckPageContent />
+    </AppShell>
   );
 }

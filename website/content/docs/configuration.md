@@ -1,7 +1,7 @@
 ---
 title: "Configuration"
 description: "Configure which routes serve Markdown, what gets cleaned, and how responses are cached."
-date: "2026-06-09"
+date: "2026-05-29"
 order: 2
 category: "Reference"
 keywords:

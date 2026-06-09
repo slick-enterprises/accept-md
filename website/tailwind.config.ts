@@ -10,8 +10,8 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
-        serif: ["Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
-        display: ["Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+        serif: ["var(--font-serif)", "Georgia", "Cambria", "serif"],
+        display: ["var(--font-serif)", "Georgia", "Cambria", "serif"],
       },
       fontSize: {
         "section-label": ["0.6875rem", { lineHeight: "1", letterSpacing: "0.12em" }],
@@ -62,42 +62,12 @@ const config: Config = {
         "section-sm": "6rem",
       },
       animation: {
-        "fade-in": "fade-in 0.5s ease-out forwards",
-        "slide-up": "slide-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
-        "float": "float 3s ease-in-out infinite",
-        "shimmer": "shimmer 2s linear infinite",
-        "icon-float": "icon-float 4s ease-in-out infinite",
-        "icon-breathe": "icon-breathe 3s ease-in-out infinite",
+        "fade-in": "fade-in 0.15s ease-out forwards",
       },
       keyframes: {
         "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
-        },
-        "slide-up": {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "glow-pulse": {
-          "0%, 100%": { opacity: "0.4" },
-          "50%": { opacity: "0.8" },
-        },
-        "float": {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-10px)" },
-        },
-        "shimmer": {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        "icon-float": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-3px)" },
-        },
-        "icon-breathe": {
-          "0%, 100%": { opacity: "0.9" },
-          "50%": { opacity: "1" },
         },
       },
       backgroundImage: {

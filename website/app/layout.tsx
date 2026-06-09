@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
+import { JsonLd } from "@/components/JsonLd";
+import { buildGlobalSchemaGraph, SITE_URL } from "@/lib/jsonld";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,13 +18,20 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+  weight: ["400", "600", "700"],
+});
+
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
 };
 
-const siteUrl = "https://accept.md";
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -85,52 +94,7 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-const softwareApplicationSchema = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "accept-md",
-  applicationCategory: "DeveloperApplication",
-  operatingSystem: "Any",
-  description:
-    "Add Accept Markdown support to Next.js and SvelteKit routes when clients send Accept: text/markdown. Zero page changes. Works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit.",
-  url: siteUrl,
-  applicationSubCategory: "Content Negotiation",
-  potentialAction: {
-    "@type": "UseAction",
-    target: `${siteUrl}/markdown-audit`,
-    name: "Run Markdown Audit",
-  },
-  author: {
-    "@type": "Organization",
-    name: "accept-md",
-    url: "https://github.com/slick-enterprises/accept-md",
-  },
-  codeRepository: "https://github.com/slick-enterprises/accept-md",
-  license: "https://opensource.org/licenses/MIT",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-  },
-};
-
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "accept-md",
-  url: siteUrl,
-  logo: `${siteUrl}/logo.png`,
-  description:
-    "Open-source tooling that serves Markdown from any Next.js or SvelteKit page via Accept: text/markdown. Built for AI agents, docs export, and content syndication.",
-  sameAs: [
-    "https://github.com/slick-enterprises/accept-md",
-  ],
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "Technical Support",
-    url: "https://github.com/slick-enterprises/accept-md/issues",
-  },
-};
+const globalSchemaGraph = buildGlobalSchemaGraph();
 
 export default function RootLayout({
   children,
@@ -140,19 +104,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${sourceSerif.variable}`}
     >
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
+        <JsonLd data={globalSchemaGraph} />
       </head>
-      <body className="min-h-screen font-sans antialiased bg-[#0a0a0a] text-ink-50 bg-grid relative z-10">
+      <body className="min-h-screen font-sans antialiased bg-[#0a0a0a] text-ink-50">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KHJV0Y5CRX"
           strategy="afterInteractive"
