@@ -499,3 +499,9 @@ Yes, both approaches support customization. Accept header solutions like accept-
 ### Which is better for SEO?
 
 Neither affects SEO directly. Search engines still receive HTML. Markdown is for AI crawlers and other automated systems.
+
+## Related resources
+
+- [Learn why AI agents prefer Markdown](/learn/why-markdown-for-agents)
+- [Read the caching and CDN guide](/docs/caching)
+- [Set up accept-md on Vercel](/integrations/vercel)

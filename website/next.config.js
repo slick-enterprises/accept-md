@@ -2,6 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  redirects: async () => [
+    {
+      source: "/check",
+      destination: "/markdown-audit",
+      permanent: true,
+    },
+  ],
+
   rewrites: async () => {
     return {
       beforeFiles: [

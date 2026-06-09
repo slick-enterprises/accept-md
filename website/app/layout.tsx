@@ -27,16 +27,18 @@ const siteUrl = "https://accept.md";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "accept-md | Serve Markdown from Any Next.js or SvelteKit Page",
+    default: "accept-md | Accept Markdown for Next.js and SvelteKit",
     template: "%s | accept-md",
   },
   description:
-    "Return clean Markdown from any Next.js or SvelteKit route via Accept: text/markdown. Zero page changes. Works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit — ideal for AI crawlers, docs export, and content syndication.",
+    "Add Accept Markdown support to any Next.js or SvelteKit route via Accept: text/markdown. Serve clean Markdown for AI agents, docs export, and content syndication with zero page changes.",
   keywords: [
+    "accept markdown",
+    "Accept: text/markdown",
     "next.js",
     "sveltekit",
     "markdown",
-    "middleware",
+    "content negotiation",
     "accept-header",
     "SSG",
     "SSR",
@@ -59,15 +61,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "accept-md",
-    title: "accept-md | Markdown from Any Next.js or SvelteKit Page",
+    title: "accept-md | Accept Markdown for Next.js and SvelteKit",
     description:
-      "Return clean Markdown from any Next.js or SvelteKit route via Accept: text/markdown. Zero page changes. App Router, Pages Router, SSG, SSR, ISR.",
+      "Serve clean Markdown from existing Next.js and SvelteKit routes with Accept: text/markdown. Built for AI agents, docs export, and content syndication.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "accept-md | Markdown from Any Next.js or SvelteKit Page",
+    title: "accept-md | Accept Markdown for Next.js and SvelteKit",
     description:
-      "Return Markdown from any Next.js or SvelteKit page via Accept: text/markdown. Zero code changes. Built for AI crawlers, docs export, and content syndication.",
+      "Add Accept Markdown support to any Next.js or SvelteKit page. Built for AI agents, docs export, and content syndication.",
   },
   robots: {
     index: true,
@@ -90,8 +92,14 @@ const softwareApplicationSchema = {
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Any",
   description:
-    "Return clean Markdown from any Next.js or SvelteKit route when clients send Accept: text/markdown. Zero page changes. Works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit.",
+    "Add Accept Markdown support to Next.js and SvelteKit routes when clients send Accept: text/markdown. Zero page changes. Works with App Router, Pages Router, SSG, SSR, ISR, and SvelteKit.",
   url: siteUrl,
+  applicationSubCategory: "Content Negotiation",
+  potentialAction: {
+    "@type": "UseAction",
+    target: `${siteUrl}/markdown-audit`,
+    name: "Run Markdown Audit",
+  },
   author: {
     "@type": "Organization",
     name: "accept-md",
@@ -113,7 +121,7 @@ const organizationSchema = {
   url: siteUrl,
   logo: `${siteUrl}/logo.png`,
   description:
-    "Open-source middleware that serves Markdown from any Next.js or SvelteKit page via Accept: text/markdown. Built for AI crawlers, docs export, and content syndication.",
+    "Open-source tooling that serves Markdown from any Next.js or SvelteKit page via Accept: text/markdown. Built for AI agents, docs export, and content syndication.",
   sameAs: [
     "https://github.com/slick-enterprises/accept-md",
   ],

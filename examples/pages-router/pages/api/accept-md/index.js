@@ -69,6 +69,7 @@ export default async function handler(req, res) {
       headers,
     });
     res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    res.setHeader('Vary', 'Accept');
     if (config.cache !== false) {
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
     } else {

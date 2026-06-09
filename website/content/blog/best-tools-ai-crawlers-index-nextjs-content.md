@@ -389,9 +389,9 @@ While Puppeteer works for JavaScript-heavy applications, it's unnecessary overhe
 
 ## FAQ
 
-### Do AI crawlers automatically request Markdown?
+### How do AI agents request Markdown?
 
-Most modern AI crawlers (like those from OpenAI, Anthropic, etc.) can be configured to send `Accept: text/markdown` headers. Some also support query parameters or dedicated endpoints.
+Some AI agents and crawler tools can advertise a Markdown preference with `Accept: text/markdown`, but support varies by client and version. Verify the exact request header in your own logs before assuming an agent will receive Markdown.
 
 ### Will this affect my SEO?
 
@@ -412,3 +412,9 @@ You should receive Markdown instead of HTML.
 ### Does this work with ISR (Incremental Static Regeneration)?
 
 Yes! The caching respects ISR revalidation times, so Markdown updates when your pages revalidate.
+
+## Related resources
+
+- [AI agent compatibility matrix](https://acceptmarkdown.com/status)
+- [Learn what Accept Markdown means](/learn/accept-markdown)
+- [Run a Markdown audit](/markdown-audit)

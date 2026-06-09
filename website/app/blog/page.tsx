@@ -14,6 +14,20 @@ export default function BlogPage() {
         <p className="mt-3 text-base leading-relaxed text-ink-400">
           Guides, deep dives, and best practices for serving Markdown from Next.js and SvelteKit.
         </p>
+        <div className="mt-6 flex flex-wrap gap-3 text-sm">
+          <Link
+            href="/learn"
+            className="rounded-full border border-white/10 px-4 py-2 text-ink-300 transition-colors hover:border-white/20 hover:text-white"
+          >
+            Learn Accept Markdown
+          </Link>
+          <Link
+            href="/integrations"
+            className="rounded-full border border-white/10 px-4 py-2 text-ink-300 transition-colors hover:border-white/20 hover:text-white"
+          >
+            Framework integrations
+          </Link>
+        </div>
       </header>
 
       {posts.length === 0 ? (

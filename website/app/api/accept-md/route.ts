@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(markdown, {
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
+        'Vary': 'Accept',
         'Cache-Control': config.cache ? 'public, s-maxage=60, stale-while-revalidate' : 'no-store',
       },
     });

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X, Zap, ArrowUpRight } from "lucide-react";
+import { GitHubStarWidget } from "./GitHubStarWidget";
 
 const NAV_LINKS = [
-  { href: "/#features", label: "Features" },
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/blog", label: "Blog" },
   { href: "/docs", label: "Docs" },
+  { href: "/learn", label: "Learn" },
+  { href: "/integrations", label: "Integrations" },
+  { href: "/markdown-audit", label: "Audit" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const HERO_HIDE_THRESHOLD = 400;
@@ -41,13 +43,13 @@ export function Header() {
       <div className="flex flex-wrap items-center justify-center gap-2 border-b border-white/5 bg-ink-500/10 px-4 py-2 text-sm font-medium text-ink-300">
         <Zap className="h-4 w-4 shrink-0 text-amber-400" fill="currentColor" strokeWidth={0} aria-hidden />
         <span>
-          <span className="font-semibold text-white">v5.0.1</span> now supports SvelteKit Projects
+          Accept Markdown for Next.js and SvelteKit
         </span>
         <Link
-          href="/docs"
+          href="/markdown-audit"
           className="ml-1 inline-flex shrink-0 items-center gap-0.5 text-ink-300 transition-colors hover:text-white"
         >
-          Read docs
+          Run the audit
           <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>
@@ -70,14 +72,7 @@ export function Header() {
                 {label}
               </Link>
             ))}
-            <a
-              href="https://github.com/slick-enterprises/accept-md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium"
-            >
-              GitHub
-            </a>
+            <GitHubStarWidget className="px-4 py-2" />
           </nav>
 
           <button
@@ -104,15 +99,10 @@ export function Header() {
                 {label}
               </Link>
             ))}
-            <a
-              href="https://github.com/slick-enterprises/accept-md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary mt-2 inline-flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium"
+            <GitHubStarWidget
+              className="mt-2 w-full justify-center px-4 py-2.5"
               onClick={() => setMobileOpen(false)}
-            >
-              GitHub
-            </a>
+            />
           </nav>
         </div>
       )}

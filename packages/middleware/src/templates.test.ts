@@ -70,6 +70,12 @@ describe('templates', () => {
     expect(PAGES_API_HANDLER_TEMPLATE).toContain('pathFromQuery');
   });
 
+  it('handler templates set Vary: Accept for content negotiation', () => {
+    expect(APP_ROUTE_HANDLER_TEMPLATE).toContain("'Vary': 'Accept'");
+    expect(PAGES_API_HANDLER_TEMPLATE).toContain("res.setHeader('Vary', 'Accept')");
+    expect(SVELTEKIT_ROUTE_HANDLER_TEMPLATE).toContain("'Vary': 'Accept'");
+  });
+
   describe('getNextConfigRewrite', () => {
     it('returns the query-param destination form (issue #16)', () => {
       // The rewrite destination must use the query-param form so that the

@@ -15,7 +15,7 @@ const features: {
   {
     title: "AI & LLM ready",
     description:
-      "Feed clean Markdown to crawlers, RAG pipelines, and LLM agents — no scraping required.",
+      "Feed clean Markdown to crawlers, RAG pipelines, and LLM agents with frontmatter and JSON-LD preserved.",
     icon: Bot,
   },
   {
@@ -39,7 +39,7 @@ const features: {
   {
     title: "Zero page changes",
     description:
-      "Middleware handles everything. Your components stay untouched — no Puppeteer, no custom server.",
+      "Rewrites, handlers, or hooks handle Markdown requests. Your components stay untouched — no Puppeteer, no custom server.",
     icon: Zap,
   },
 ];

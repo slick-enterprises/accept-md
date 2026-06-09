@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.2] - 2026-06-10
+
+### Fixed
+
+- **Generated handlers now send `Vary: Accept` on Markdown responses**: App Router, Pages Router, and SvelteKit route templates include the header so caches do not mix HTML and Markdown for the same URL. Existing projects should re-run `npx accept-md init` or add `'Vary': 'Accept'` to their handler manually.
+
+### Added
+
+- **Website docs and Markdown Audit tool**: New `/docs`, `/learn`, `/integrations`, and `/markdown-audit` sections with guides on content negotiation, caching, and production checks.
+
 ## [5.0.1] - 2026-05-07
 
 ### Fixed

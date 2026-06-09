@@ -151,7 +151,7 @@ For **SvelteKit**, add a route like:
 - `src/routes/api/accept-md/[...path]/+server.js` (or `.ts`), which:
   - Reads the original path from the `path` query parameter or from the URL suffix after `/api/accept-md/`
   - Calls `getMarkdownForPath({ pathname, baseUrl, config, cache, headers })`
-  - Returns a `Response` with `Content-Type: text/markdown; charset=utf-8`
+  - Returns a `Response` with `Content-Type: text/markdown; charset=utf-8` and `Vary: Accept`
 
 See the [examples](./examples) for full code for both Next.js and SvelteKit.
 
@@ -310,6 +310,7 @@ The in-memory cache (enabled by default) persists until:
 
 When `cache: true` in config, responses include:
 - `Cache-Control: public, s-maxage=60, stale-while-revalidate` (default)
+- `Vary: Accept` (so CDNs and browsers cache HTML and Markdown separately)
 - The `s-maxage` can be extended to match ISR revalidation times (future enhancement)
 
 ### Debug Mode

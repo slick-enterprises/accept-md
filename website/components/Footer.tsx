@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 const FOOTER_LINKS = [
-  { href: "/#features", label: "Features" },
-  { href: "/#how-it-works", label: "How it works" },
   { href: "/docs", label: "Docs" },
+  { href: "/learn", label: "Learn" },
+  { href: "/integrations", label: "Integrations" },
+  { href: "/markdown-audit", label: "Markdown Audit" },
+  { href: "/blog", label: "Blog" },
+  { href: "/about", label: "About" },
   { href: "https://github.com/slick-enterprises/accept-md", label: "GitHub", external: true },
   { href: "https://github.com/slick-enterprises/accept-md/issues", label: "Issues", external: true },
 ];
@@ -46,7 +49,7 @@ export function Footer() {
         <div className="mt-8 border-t border-white/5 pt-8 text-center text-sm text-ink-500">
           <span className="text-ink-600">MIT License</span>
           <span className="mx-2 text-ink-600">·</span>
-          <span>Markdown from any Next.js or SvelteKit page</span>
+          <span>Accept Markdown for any Next.js or SvelteKit page</span>
         </div>
       </div>
     </footer>

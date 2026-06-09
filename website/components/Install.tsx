@@ -14,7 +14,8 @@ export function Install() {
         </h2>
         <p className="mt-4 text-base leading-relaxed text-ink-400">
           Run from your project root. The CLI detects your framework, configures
-          middleware or hooks, and wires up the handler — deploy-ready on Vercel.
+          rewrites, handlers, or hooks, and wires up Markdown negotiation —
+          deploy-ready on Vercel.
         </p>
         <CodeBlock
           language="bash"
@@ -31,12 +32,19 @@ export function Install() {
         </CodeBlock>
         <p className="mt-6 text-sm text-ink-400">
           <Link
-            href="/docs"
+            href="/docs/installation"
             className="font-medium text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white/50"
           >
-            Full documentation
+            Installation guide
           </Link>{" "}
-          — configuration, CLI commands, and manual setup.
+          — or browse{" "}
+          <Link
+            href="/integrations"
+            className="font-medium text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white/50"
+          >
+            framework integrations
+          </Link>
+          .
         </p>
       </div>
     </section>

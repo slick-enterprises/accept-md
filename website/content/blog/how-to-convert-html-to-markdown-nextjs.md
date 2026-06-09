@@ -369,3 +369,9 @@ The markdown handler can forward authentication headers to your page fetch, so p
 ### Can I customize the Markdown output?
 
 Yes, most solutions support custom transformers and configuration options for cleaning HTML, formatting, and post-processing.
+
+## Related resources
+
+- [Read the Markdown output reference](/docs/output)
+- [Set up the Next.js App Router integration](/integrations/nextjs-app-router)
+- [Learn why agents prefer Markdown](/learn/why-markdown-for-agents)

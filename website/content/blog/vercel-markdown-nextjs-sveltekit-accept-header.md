@@ -132,3 +132,9 @@ If you're on Vercel with Next.js or SvelteKit and need Markdown:
 
 That combination—Vercel + Accept header + accept-md—gives you a production-ready Markdown API with almost zero friction and no changes to your existing pages. 
 
+## Related resources
+
+- [Deploy accept-md on Vercel](/integrations/vercel)
+- [Read the caching and CDN guide](/docs/caching)
+- [Run a Markdown audit](/markdown-audit)
+

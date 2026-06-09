@@ -493,3 +493,9 @@ The handler can forward authentication headers to your page fetch, so protected 
 ### Can I customize the Markdown output?
 
 Yes, you can use Turndown options and custom transformers to customize the output format.
+
+## Related resources
+
+- [Learn what Accept Markdown means](/learn/accept-markdown)
+- [Set up the Next.js App Router integration](/integrations/nextjs-app-router)
+- [Run a Markdown audit](/markdown-audit)

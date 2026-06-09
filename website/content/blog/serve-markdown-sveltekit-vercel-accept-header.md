@@ -178,3 +178,9 @@ SvelteKit + Vercel is a great platform for serving Markdown alongside HTML:
 
 If you're building AI crawlers, documentation exports, or content pipelines on SvelteKit, using `Accept: text/markdown` with accept-md is the cleanest, most production-ready path. 
 
+## Related resources
+
+- [Set up the SvelteKit integration](/integrations/sveltekit)
+- [Deploy accept-md on Vercel](/integrations/vercel)
+- [Run a Markdown audit](/markdown-audit)
+

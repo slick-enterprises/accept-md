@@ -69,6 +69,7 @@ export async function GET(request) {
     return new NextResponse(markdown, {
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
+        'Vary': 'Accept',
         'Cache-Control': config.cache !== false ? 'public, s-maxage=60, stale-while-revalidate' : 'no-store',
       },
     });

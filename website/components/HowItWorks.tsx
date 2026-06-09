@@ -1,9 +1,9 @@
 const steps = [
   {
     step: "01",
-    title: "Intercept",
+    title: "Negotiate",
     detail:
-      "Middleware detects Accept: text/markdown and rewrites the request to an internal handler.",
+      "A rewrite, handler, middleware fallback, or SvelteKit hook detects Accept: text/markdown and routes the request internally.",
   },
   {
     step: "02",
@@ -15,7 +15,7 @@ const steps = [
     step: "03",
     title: "Return clean output",
     detail:
-      "Chrome, boilerplate, and nav are stripped. Headings, links, images, and tables stay intact. Responses are cacheable.",
+      "Chrome, boilerplate, and nav are stripped. Headings, links, images, tables, frontmatter, and JSON-LD stay useful.",
   },
 ];
 
@@ -31,8 +31,8 @@ export function HowItWorks() {
           Three steps, zero page edits
         </h2>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-400">
-          Your components stay untouched. Next.js middleware or SvelteKit hooks
-          handle the routing — deploys to Vercel with no custom server.
+          Your components stay untouched. Next.js rewrites or SvelteKit hooks
+          handle routing — deploys to Vercel with no custom server.
         </p>
         <div className="mt-16 grid gap-8 md:grid-cols-3">
           {steps.map((s) => (
